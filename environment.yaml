@@ -10,6 +10,6 @@ dependencies:
   - pytorch
   - cudatoolkit=10.1
   - librosa
-  - soundfile
+  - pip
   - pip:
     - colorednoise

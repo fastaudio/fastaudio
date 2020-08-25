@@ -1,0 +1,6 @@
+site_name: Fastaudio
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - mkautodoc

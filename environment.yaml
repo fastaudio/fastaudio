@@ -1,24 +1,15 @@
-name: asr_keras
+name: fastaudio
 channels:
   - defaults
+  - fastai
+  - pytorch
   - conda-forge
 dependencies:
   - python>=3.6
-  - pip
+  - fastai>=2.0
+  - pytorch
   - cudatoolkit=10.1
-  - cudnn
+  - librosa
+  - soundfile
   - pip:
-     # add here only pip-packages that are not available in conda/conda-forge! E.g.:
-     - tensorflow-gpu
-     - tensorflow-io
-  # for development only (could also be kept in a separate environment file)
-  - jupyterlab
-  - pytest
-  - pytest-cov
-  - tox
-  - pre_commit
-  - nbdime
-  - nbstripout
-  - sphinx
-  - recommonmark
-  - black
+    - colorednoise

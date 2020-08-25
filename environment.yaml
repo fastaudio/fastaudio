@@ -1,0 +1,34 @@
+name: fastaudio
+channels:
+  - defaults
+  - conda-forge
+  - pytorch
+dependencies:
+  - python>=3.6
+  - pip
+  - numpy
+  - scipy
+  - pandas
+  - dask
+  - ipython
+  - tqdm
+  - click
+  - matplotlib
+  - seaborn
+  - altair
+  - statsmodels
+  - scikit-learn
+  - pytorch
+  - pip:
+     # add here only pip-packages that are not available in conda/conda-forge! E.g.:
+     - optuna
+  # for development only (could also be kept in a separate environment file)
+  - jupyterlab
+  - pytest
+  - pytest-cov
+  - tox
+  - pre_commit
+  - nbdime
+  - nbstripout
+  - sphinx
+  - recommonmark

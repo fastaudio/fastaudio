@@ -8,6 +8,7 @@ dependencies:
   - python>=3.6
   - fastai>=2.0
   - pytorch
+  - torchaudio
   - cudatoolkit=10.1
   - librosa
   - pip

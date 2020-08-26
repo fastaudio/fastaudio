@@ -19,7 +19,7 @@ If you plan on contributing to the library instead, you will need to do a editab
 git clone https://github.com/scart97/fastaudio.git
 conda env create -f fastaudio/environment.yaml
 cd fastaudio
-pip install -e .[dev]
+pip install -e .[dev,testing]
 pre-commit install
 ```
 

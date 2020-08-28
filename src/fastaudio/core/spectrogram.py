@@ -1,24 +1,18 @@
-# flake8: noqa
-__all__ = [
-    "AudioSpectrogram",
-    "show_spectrogram",
-    "AudioToSpec",
-    "SpectrogramTransformer",
-    "fill_pipeline",
-    "warn_unused",
-    "get_usable_kwargs",
-    "AudioToMFCC",
-]
-
 import warnings
 from dataclasses import asdict, is_dataclass
 from inspect import signature
 
 import torchaudio
-from fastai.data.all import *
+from fastai.data.core import TensorImageBase
+from fastai.imports import inspect, partial, plt
+from fastcore.transform import Pipeline, Transform
+from fastcore.utils import L, add_props, delegates, ifnone
 from librosa.display import specshow
 
-from .signal import *
+from .signal import AudioTensor
+
+# from fastai.data.all import *
+# from .signal import *
 
 
 class AudioSpectrogram(TensorImageBase):
@@ -35,7 +29,8 @@ class AudioSpectrogram(TensorImageBase):
         return (self.hop_length * (self.shape[-1] - 0.5)) / self.sr
 
     height, width = add_props(lambda i, self: self.shape[i + 1], n=2)
-    # using the line below instead of above will fix show_batch but break multichannel/delta display
+    # using the line below instead of above will fix show_batch but break
+    # multichannel/delta display
     # nchannels, height, width = add_props(lambda i, self: self.shape[i], n=3)
 
     def __getattr__(self, name):
@@ -57,7 +52,7 @@ def show_spectrogram(sg, ax, ctx, figsize, **kwargs):
     nchannels = sg.nchannels
     r, c = nchannels, sg.data.shape[0] // nchannels
     proper_kwargs = get_usable_kwargs(
-        specshow, sg._settings, exclude=["ax", "kwargs", "data",]
+        specshow, sg._settings, exclude=["ax", "kwargs", "data"]
     )
     if r == 1 and c == 1:
         _show_spectrogram(sg, ax, proper_kwargs, **kwargs)
@@ -76,10 +71,11 @@ def show_spectrogram(sg, ax, ctx, figsize, **kwargs):
                 cur_ax = ax[i // c, i % c]
             width, height = sg.shape[-2:]
             cur_ax.set_title(f"Channel {i//c} Image {i%c}: {width} X {height}px")
-            z = specshow(channel.numpy(), ax=cur_ax, **sg._show_args, **proper_kwargs)
+            specshow(channel.numpy(), ax=cur_ax, **sg._show_args, **proper_kwargs)
             # plt.colorbar(z, ax=cur_ax)
             # ax=plt.gca() #get the current axes
-            # PCM=ax.get_children()[2] #get the mappable, the 1st and the 2nd are the x and y axes
+            # get the mappable, the 1st and the 2nd are the x and y axes
+            # PCM=ax.get_children()[2]
             # plt.colorbar(PCM, ax=ax, format='%+2.0f dB')
 
 
@@ -88,9 +84,7 @@ def _show_spectrogram(sg, ax, proper_kwargs, **kwargs):
         y_axis = None
     else:
         y_axis = "mel" if sg.mel else "linear"
-    proper_kwargs.update(
-        {"x_axis": "time", "y_axis": y_axis,}
-    )
+    proper_kwargs.update({"x_axis": "time", "y_axis": y_axis})
     _ = specshow(sg.data.squeeze(0).numpy(), **sg._show_args, **proper_kwargs)
     fmt = "%+2.0f dB" if "to_db" in sg._settings and sg.to_db else "%+2.0f"
     plt.colorbar(format=fmt)
@@ -156,7 +150,7 @@ def fill_pipeline(transform_list, sg_type, **kwargs):
 def _get_signature(transforms):
     """Looks at transform list and extracts all valid args for tab completion"""
     delegations = [delegates(to=f, keep=True) for f in transforms]
-    out = lambda **kwargs: None
+    out = lambda **kwargs: None  # noqa: E731
     for d in delegations:
         out = d(out)
     return signature(out)

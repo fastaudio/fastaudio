@@ -1,8 +1,8 @@
 # flake8: noqa
 __all__ = ["RemoveSilence", "Resample"]
 
-from fastai2.data.all import *
-from fastai2.vision.augment import RandTransform
+from fastai.data.all import *
+from fastai.vision.augment import RandTransform
 from fastcore.transform import Transform
 from librosa.effects import split
 from scipy.signal import resample_poly

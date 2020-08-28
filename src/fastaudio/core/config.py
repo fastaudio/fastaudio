@@ -13,7 +13,7 @@ from dataclasses import make_dataclass
 from inspect import signature
 
 import torchaudio.transforms as transforms
-from fastai2.data.all import *
+from fastai.data.all import *
 from torchaudio import save as save_audio
 
 from ..augment.preprocess import Resample

@@ -14,8 +14,8 @@ __all__ = [
 
 
 import colorednoise as cn
-from fastai2.data.all import *
-from fastai2.vision.augment import RandTransform
+from fastai.data.all import *
+from fastai.vision.augment import RandTransform
 from fastcore.transform import Transform
 
 from ..core.signal import *

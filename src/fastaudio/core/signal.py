@@ -10,8 +10,8 @@ __all__ = [
 ]
 
 import torchaudio
-from fastai2.data.all import *
-from fastai2.torch_basics import *
+from fastai.data.all import *
+from fastai.torch_basics import *
 from IPython.display import Audio, display
 from librosa.display import waveplot
 
@@ -37,9 +37,6 @@ def AudioGetter(suf="", recurse=True, folders=None):
 
 
 URLs.SPEAKERS10 = "http://www.openslr.org/resources/45/ST-AEDS-20180100_1-OS.tgz"
-URLs.SPEAKERS250 = (
-    "https://public-datasets.fra1.digitaloceanspaces.com/250-speakers.tar"
-)
 URLs.ESC50 = "https://github.com/karoldvl/ESC-50/archive/master.zip"
 
 

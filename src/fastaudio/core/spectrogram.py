@@ -15,7 +15,7 @@ from dataclasses import asdict, is_dataclass
 from inspect import signature
 
 import torchaudio
-from fastai2.data.all import *
+from fastai.data.all import *
 from librosa.display import specshow
 
 from .signal import *

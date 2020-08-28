@@ -1,0 +1,26 @@
+# This workflows will upload a Python Package using Twine when a release is created
+# For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
+
+name: Trigger build docs
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Repository Dispatch
+      # You may pin to the exact commit or the version.
+      # uses: peter-evans/repository-dispatch@1708dda5703a768a0fb0ef6a7a03a0c3805ebc59
+      uses: peter-evans/repository-dispatch@v1.1.1
+      with:
+        # A repo scoped GitHub Personal Access Token
+        token: ${{ secrets.REPO_ACCESS_TOKEN }}
+        # The full name of the repository to send the dispatch.
+        repository:  fastaudio/fastaudio.github.io 
+        # A custom webhook event name.
+        event-type: build-docs

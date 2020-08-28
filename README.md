@@ -8,7 +8,7 @@ In the future we will offer conda and pip installs, but as the code is rapidly c
 To install:
 
 ```
-git clone https://github.com/scart97/fastaudio.git
+git clone https://github.com/fastaudio/fastaudio.git
 conda env create -f fastaudio/environment.yaml
 cd fastaudio && pip install .
 ```
@@ -16,7 +16,7 @@ cd fastaudio && pip install .
 If you plan on contributing to the library instead, you will need to do a editable install:
 
 ```
-git clone https://github.com/scart97/fastaudio.git
+git clone https://github.com/fastaudio/fastaudio.git
 conda env create -f fastaudio/environment.yaml
 cd fastaudio
 pip install -e .[dev,testing]

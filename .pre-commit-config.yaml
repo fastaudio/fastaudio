@@ -17,7 +17,7 @@ repos:
   - id: mixed-line-ending
     args: ['--fix=no']
   - id: flake8
-    args: ['--max-line-length=88']  # default of Black
+    args: ['--max-line-length=88', '--ignore=E203']  # default of Black
 
 - repo: https://github.com/pre-commit/mirrors-isort
   rev: v4.3.4

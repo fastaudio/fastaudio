@@ -1,18 +1,16 @@
-# flake8: noqa
-__all__ = ["RemoveSilence", "Resample"]
-
-from fastai.data.all import *
-from fastai.vision.augment import RandTransform
+import torch
+from fastai.imports import math, np
 from fastcore.transform import Transform
+from fastcore.utils import mk_class, store_attr
 from librosa.effects import split
 from scipy.signal import resample_poly
 
-from ..core.signal import *
+from ..core.signal import AudioTensor
 
 mk_class(
     "RemoveType",
     **{o: o.lower() for o in ["Trim", "All", "Split"]},
-    doc="All methods of removing silence as attributes to get tab-completion and typo-proofing",
+    doc="All methods of removing silence as attributes to get tab-completion and typo-proofing",  # noqa: E501
 )
 
 
@@ -33,7 +31,9 @@ def _merge_splits(splits, pad):
 class RemoveSilence(Transform):
     """Split signal at points of silence greater than 2*pad_ms """
 
-    def __init__(self, remove_type=RemoveType.Trim, threshold=20, pad_ms=20):
+    def __init__(
+        self, remove_type=RemoveType.Trim, threshold=20, pad_ms=20  # noqa: F821
+    ):
         store_attr(self, "remove_type, threshold, pad_ms")
 
     def encodes(self, ai: AudioTensor) -> AudioTensor:
@@ -62,7 +62,8 @@ class RemoveSilence(Transform):
             ]
         else:
             raise ValueError(
-                f"Valid options for silence removal are None, 'split', 'trim', 'all' not '{self.remove_type}'."
+                f"""Valid options for silence removal are
+                None, 'split', 'trim', 'all' not '{self.remove_type}'."""
             )
         ai.data = torch.cat(sig, dim=-1)
         return ai

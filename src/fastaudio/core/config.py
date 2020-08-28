@@ -1,25 +1,17 @@
-# flake8: noqa
-__all__ = [
-    "audio_item_tfms",
-    "PreprocessAudio",
-    "preprocess_audio_folder",
-    "AudioBlock",
-    "config_from_func",
-    "AudioConfig",
-]
-
-
 from dataclasses import make_dataclass
 from inspect import signature
 
 import torchaudio.transforms as transforms
-from fastai.data.all import *
+from fastai.data.block import TransformBlock
+from fastai.data.transforms import IntToFloatTensor
+from fastai.imports import Path, partial
+from fastcore.transform import Pipeline
+from fastcore.utils import delegates, ifnone
 from torchaudio import save as save_audio
 
 from ..augment.preprocess import Resample
 from ..augment.signal import CropSignal, DownmixMono
-from .signal import *
-from .spectrogram import *
+from .signal import AudioTensor, get_audio_files
 
 
 def audio_item_tfms(sample_rate=16000, force_mono=True, crop_signal_to=None):
@@ -95,7 +87,8 @@ def config_from_func(func, name, **kwargs):
 
 class AudioConfig:
     # default configurations from the wrapped function
-    # make sure to pass in mel=False as kwarg for non-mel spec, and to_db=False for non db spec
+    # make sure to pass in mel=False as kwarg for non-mel spec
+    # and to_db=False for non db spec
     BasicSpectrogram = config_from_func(
         transforms.Spectrogram, "BasicSpectrogram", mel=False, to_db=True
     )

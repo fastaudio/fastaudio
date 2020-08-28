@@ -11,9 +11,6 @@ from librosa.display import specshow
 
 from .signal import AudioTensor
 
-# from fastai.data.all import *
-# from .signal import *
-
 
 class AudioSpectrogram(TensorImageBase):
     @classmethod

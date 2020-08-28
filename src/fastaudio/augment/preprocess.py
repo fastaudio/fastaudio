@@ -10,7 +10,7 @@ from ..core.signal import AudioTensor
 mk_class(
     "RemoveType",
     **{o: o.lower() for o in ["Trim", "All", "Split"]},
-    doc="All methods of removing silence as attributes to get tab-completion and typo-proofing",  # noqa: E501
+    doc="All methods of removing silence as attributes to get tab-completion and typo-proofing",
 )
 
 

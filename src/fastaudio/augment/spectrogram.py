@@ -1,14 +1,12 @@
-# flake8: noqa
-__all__ = ["CropTime", "MaskFreq", "MaskTime", "SGRoll", "Delta", "TfmResize"]
-
-
 import librosa
-from fastai2.data.all import *
-from fastai2.vision.augment import RandTransform
+import torch
+from fastai.imports import partial, random
 from fastcore.transform import Transform
+from fastcore.utils import ifnone, store_attr
+from torch.nn import functional as F
 
-from ..core.all import *
-from .signal import AudioPadType, CropSignal
+from ..core.all import AudioSpectrogram
+from .signal import AudioPadType
 
 
 class CropTime(Transform):

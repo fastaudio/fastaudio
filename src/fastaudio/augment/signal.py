@@ -1,25 +1,12 @@
-# flake8: noqa
-__all__ = [
-    "AudioPadType",
-    "NoiseColor",
-    "CropSignal",
-    "shift_signal",
-    "SignalShifter",
-    "AddNoise",
-    "ChangeVolume",
-    "SignalCutout",
-    "SignalLoss",
-    "DownmixMono",
-]
-
-
 import colorednoise as cn
-from fastai2.data.all import *
-from fastai2.vision.augment import RandTransform
+import torch
+from fastai.imports import np, random
+from fastai.vision.augment import RandTransform
 from fastcore.transform import Transform
+from fastcore.utils import mk_class, patch, store_attr
 
-from ..core.signal import *
-from ..core.spectrogram import *
+from ..core.signal import AudioTensor
+from ..core.spectrogram import AudioSpectrogram
 
 mk_class(
     "AudioPadType",
@@ -31,7 +18,7 @@ mk_class(
 class CropSignal(Transform):
     """Crops signal to be length specified in ms by duration, padding if needed"""
 
-    def __init__(self, duration, pad_mode=AudioPadType.Zeros):
+    def __init__(self, duration, pad_mode=AudioPadType.Zeros):  # noqa: F821
         store_attr(self, "duration, pad_mode")
 
     def encodes(self, ai: AudioTensor) -> AudioTensor:
@@ -48,7 +35,7 @@ class CropSignal(Transform):
         return ai
 
 
-def _tfm_pad_signal(sig, width, pad_mode=AudioPadType.Zeros):
+def _tfm_pad_signal(sig, width, pad_mode=AudioPadType.Zeros):  # noqa: F821
     """Pad spectrogram to specified width, using specified pad mode"""
     c, x = sig.shape
     pad_m = pad_mode.lower()
@@ -123,7 +110,7 @@ mk_class(
 
 
 class AddNoise(Transform):
-    def __init__(self, noise_level=0.05, color=NoiseColor.White):
+    def __init__(self, noise_level=0.05, color=NoiseColor.White):  # noqa: F821
         store_attr(self, "noise_level, color")
 
     def encodes(self, ai: AudioTensor) -> AudioTensor:

@@ -1,17 +1,10 @@
-# flake8: noqa
-__all__ = [
-    "audio_extensions",
-    "get_audio_files",
-    "AudioGetter",
-    "tar_extract_at_filename",
-    "AudioTensor",
-    "show_audio_signal",
-    "OpenAudio",
-]
-
 import torchaudio
-from fastai2.data.all import *
-from fastai2.torch_basics import *
+from fastai.data.external import URLs
+from fastai.data.transforms import Transform, get_files
+from fastai.imports import Path, mimetypes, plt, tarfile
+from fastai.torch_core import TensorBase
+from fastcore.dispatch import retain_type
+from fastcore.utils import add_props, delegates
 from IPython.display import Audio, display
 from librosa.display import waveplot
 
@@ -28,7 +21,8 @@ def get_audio_files(path, recurse=True, folders=None):
 
 
 def AudioGetter(suf="", recurse=True, folders=None):
-    "Create `get_audio_files` partial function that searches path suffix `suf` and passes along `kwargs`, only in `folders`, if specified."
+    """Create `get_audio_files` partial function that searches path suffix `suf`
+    and passes along `kwargs`, only in `folders`, if specified."""
 
     def _inner(o, recurse=recurse, folders=folders):
         return get_audio_files(o / suf, recurse, folders)
@@ -37,9 +31,6 @@ def AudioGetter(suf="", recurse=True, folders=None):
 
 
 URLs.SPEAKERS10 = "http://www.openslr.org/resources/45/ST-AEDS-20180100_1-OS.tgz"
-URLs.SPEAKERS250 = (
-    "https://public-datasets.fra1.digitaloceanspaces.com/250-speakers.tar"
-)
 URLs.ESC50 = "https://github.com/karoldvl/ESC-50/archive/master.zip"
 
 
@@ -91,7 +82,6 @@ class AudioTensor(TensorBase):
 
 def _get_f(fn):
     def _f(self, *args, **kwargs):
-        cls = self.__class__
         res = getattr(super(TensorBase, self), fn)(*args, **kwargs)
         return retain_type(res, self)
 

@@ -74,6 +74,10 @@ def shift_signal(t: torch.Tensor, shift, roll):
 
 
 class SignalShifter(RandTransform):
+    """Randomly shifts the audio signal by `max_pct` %.
+        direction must be -1(left) 0(bidirectional) or 1(right).
+    """
+
     def __init__(self, p=0.5, max_pct=0.2, max_time=None, direction=0, roll=False):
         if direction not in [-1, 0, 1]:
             raise ValueError("Direction must be -1(left) 0(bidirectional) or 1(right)")
@@ -110,6 +114,8 @@ mk_class(
 
 
 class AddNoise(Transform):
+    "Adds noise of specified color and level to the audio signal"
+
     def __init__(self, noise_level=0.05, color=NoiseColor.White):  # noqa: F821
         store_attr(self, "noise_level, color")
 
@@ -133,6 +139,8 @@ def apply_gain(ai: AudioTensor, gain):
 
 
 class ChangeVolume(RandTransform):
+    "Changes the volume of the signal"
+
     def __init__(self, p=0.5, lower=0.5, upper=1.5):
         self.lower, self.upper = lower, upper
         super().__init__(p=p)
@@ -158,6 +166,8 @@ def cutout(ai: AudioTensor, cut_pct):
 
 
 class SignalCutout(RandTransform):
+    "Randomly zeros some portion of the signal"
+
     def __init__(self, p=0.5, max_cut_pct=0.15):
         self.max_cut_pct = max_cut_pct
         super().__init__(p=p)
@@ -178,6 +188,8 @@ def lose_signal(ai: AudioTensor, loss_pct):
 
 
 class SignalLoss(RandTransform):
+    "Randomly loses some portion of the signal"
+
     def __init__(self, p=0.5, max_loss_pct=0.15):
         self.max_loss_pct = max_loss_pct
         super().__init__(p=p)
@@ -193,6 +205,8 @@ class SignalLoss(RandTransform):
 # downmixMono was removed from torchaudio, we now just take the mean across channels
 # this works for both batches and individual items
 class DownmixMono(Transform):
+    "Transform multichannel audios into single channel"
+
     def encodes(self, ai: AudioTensor) -> AudioTensor:
         downmixed = ai.data.contiguous().mean(-2).unsqueeze(-2)
         return AudioTensor(downmixed, ai.sr)

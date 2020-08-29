@@ -35,15 +35,23 @@ URLs.ESC50 = "https://github.com/karoldvl/ESC-50/archive/master.zip"
 
 
 def tar_extract_at_filename(fname, dest):
-    "Extract `fname` to `dest`/`fname`.name folder using `tarfile`"
+    "Extract `fname` to `dest`/`fname.name` folder using `tarfile`"
     dest = Path(dest) / Path(fname).with_suffix("").name
     tarfile.open(fname, "r:gz").extractall(dest)
 
 
 class AudioTensor(TensorBase):
+    """
+    Semantic torch tensor that represents an audio.
+    Contains all of the functionality of a normal tensor,
+    but additionally can be created from files and has
+    extra properties.
+    """
+
     @classmethod
     @delegates(torchaudio.load, keep=True)
     def create(cls, fn, cache_folder=None, **kwargs):
+        "Creates audio tensor from file"
         if cache_folder is not None:
             fn = cache_folder / fn.name
         sig, sr = torchaudio.load(fn, **kwargs)
@@ -51,6 +59,7 @@ class AudioTensor(TensorBase):
 
     @property
     def sr(self):
+        "Property. Sampling rate of the audio"
         return self.get_meta("sr")
 
     def __new__(cls, x, sr, **kwargs):
@@ -70,10 +79,11 @@ class AudioTensor(TensorBase):
         return self.nsamples / float(self.sr)
 
     def hear(self):
+        "Listen to audio clip. Creates a html player."
         display(Audio(self, rate=self.sr))
 
     def show(self, ctx=None, hear=True, **kwargs):
-        "Show audio clip using `merge(self._show_args, kwargs)`"
+        "Show audio clip using matplotlib"
         if hear:
             self.hear()
         show_audio_signal(self, ctx=ctx, **kwargs)
@@ -102,6 +112,10 @@ def show_audio_signal(ai, ctx, **kwargs):
 
 
 class OpenAudio(Transform):
+    """
+    Transform that creates AudioTensors from a list of files.
+    """
+
     def __init__(self, items):
         self.items = items
 

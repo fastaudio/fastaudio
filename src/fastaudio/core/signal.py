@@ -45,7 +45,7 @@ class AudioTensor(TensorBase):
     Semantic torch tensor that represents an audio.
     Contains all of the functionality of a normal tensor,
     but additionally can be created from files and has
-    extra properties.
+    extra properties. Also knows how to show itself.
     """
 
     @classmethod
@@ -83,7 +83,10 @@ class AudioTensor(TensorBase):
         display(Audio(self, rate=self.sr))
 
     def show(self, ctx=None, hear=True, **kwargs):
-        "Show audio clip using matplotlib"
+        """Show audio clip using matplotlib.
+        Pass `hear=True` to also display a player
+        to listen.
+        """
         if hear:
             self.hear()
         show_audio_signal(self, ctx=ctx, **kwargs)

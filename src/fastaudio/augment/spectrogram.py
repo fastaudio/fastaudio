@@ -118,6 +118,9 @@ def _torchdelta(sg: AudioSpectrogram, order=1, width=9):
 
 
 class Delta(Transform):
+    """Creates delta with order 1 and 2 from spectrogram
+    and concatenate with the original"""
+
     def __init__(self, width=9):
         self.td = partial(_torchdelta, width=width)
 

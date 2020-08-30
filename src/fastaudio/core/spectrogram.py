@@ -16,8 +16,15 @@ from .signal import AudioTensor
 
 
 class AudioSpectrogram(TensorImageBase):
+    """
+    Semantic torch tensor that represents an Audio Spectrogram.
+    Contains all of the functionality of a normal tensor,
+    but has extra properties and knows how to show itself.
+    """
+
     @classmethod
     def create(cls, sg_tensor, settings=None):
+        """Create an AudioSpectrogram from a torch tensor"""
         audio_sg = cls(sg_tensor)
         audio_sg._settings = settings
         return audio_sg
@@ -108,12 +115,17 @@ _ToDB = torchaudio.transforms.AmplitudeToDB
 
 
 class AudioToSpec(Transform):
+    """
+        Transform to create spectrograms from audio tensors.
+    """
+
     def __init__(self, pipe, settings):
         self.pipe = pipe
         self.settings = settings
 
     @classmethod
     def from_cfg(cls, audio_cfg):
+        "Creates AudioToSpec from configuration file"
         cfg = asdict(audio_cfg) if is_dataclass(audio_cfg) else dict(audio_cfg)
         transformer = SpectrogramTransformer(mel=cfg.pop("mel"), to_db=cfg.pop("to_db"))
         return transformer(**cfg)
@@ -125,6 +137,8 @@ class AudioToSpec(Transform):
 
 
 def SpectrogramTransformer(mel=True, to_db=True):
+    """Creates a factory for creating AudioToSpec
+    transforms with different parameters"""
     sg_type = {"mel": mel, "to_db": to_db}
     transforms = _get_transform_list(sg_type)
     pipe_noargs = partial(fill_pipeline, sg_type=sg_type, transform_list=transforms)
@@ -195,6 +209,10 @@ def get_usable_kwargs(func, kwargs, exclude=None):
 
 @delegates(_GenMFCC.__init__)
 class AudioToMFCC(Transform):
+    """
+        Transform to create MFCC features from audio tensors.
+    """
+
     def __init__(self, **kwargs):
         func_args = get_usable_kwargs(_GenMFCC, kwargs, [])
         self.transformer = _GenMFCC(**func_args)
@@ -202,6 +220,7 @@ class AudioToMFCC(Transform):
 
     @classmethod
     def from_cfg(cls, audio_cfg):
+        "Creates AudioToMFCC from configuration file"
         cfg = asdict(audio_cfg) if is_dataclass(audio_cfg) else audio_cfg
         return cls(**cfg)
 

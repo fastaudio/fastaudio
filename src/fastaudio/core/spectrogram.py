@@ -7,9 +7,10 @@ from fastai.data.core import TensorImageBase
 from fastai.imports import inspect, partial, plt
 from fastai.vision.data import get_grid
 from fastcore.dispatch import typedispatch
-from fastcore.transform import Pipeline, Transform
+from fastcore.transform import Transform
 from fastcore.utils import L, add_props, delegates, ifnone
 from librosa.display import specshow
+from torch import nn
 
 from .signal import AudioTensor
 
@@ -118,10 +119,9 @@ class AudioToSpec(Transform):
         return transformer(**cfg)
 
     def encodes(self, audio: AudioTensor):
+        self.pipe.to(audio.device)
         self.settings.update({"sr": audio.sr, "nchannels": audio.nchannels})
-        return AudioSpectrogram.create(
-            self.pipe(audio.data), settings=dict(self.settings)
-        )
+        return AudioSpectrogram.create(self.pipe(audio), settings=dict(self.settings))
 
 
 def SpectrogramTransformer(mel=True, to_db=True):
@@ -154,7 +154,7 @@ def fill_pipeline(transform_list, sg_type, **kwargs):
         function_list += f(**usable_kwargs)
         settings.update(usable_kwargs)
     warn_unused(kwargs, settings)
-    return AudioToSpec(Pipeline(function_list), settings={**sg_type, **settings})
+    return AudioToSpec(nn.Sequential(*function_list), settings={**sg_type, **settings})
 
 
 def _get_signature(transforms):

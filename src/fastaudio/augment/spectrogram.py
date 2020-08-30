@@ -5,7 +5,7 @@ from fastcore.transform import Transform
 from fastcore.utils import ifnone, store_attr
 from torch.nn import functional as F
 
-from ..core.all import AudioSpectrogram
+from ..core.spectrogram import AudioSpectrogram
 from .signal import AudioPadType
 
 
@@ -124,7 +124,7 @@ class Delta(Transform):
     def __init__(self, width=9):
         self.td = partial(_torchdelta, width=width)
 
-    def encodes(self, sg: AudioSpectrogram) -> AudioSpectrogram:
+    def encodes(self, sg: AudioSpectrogram):
         new_channels = [
             torch.stack([c, self.td(c, order=1), self.td(c, order=2)]) for c in sg
         ]

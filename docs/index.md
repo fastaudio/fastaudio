@@ -1,17 +1,10 @@
-# Welcome to MkDocs
+# Fastaudio
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+> An audio module for fastai v2. We want to help you build audio machine learning applications while minimizing the need for audio domain expertise. Currently under development.
 
-## Commands
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+# Quick Start
 
-## Project layout
+[Google Colab Notebook](https://colab.research.google.com/gist/PranY/ba0245752fff8ec2eb645afcc13f74f6/music.ipynb)
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+[Zachary Mueller's class](https://youtu.be/0IQYJNkAI3k?t=1665)

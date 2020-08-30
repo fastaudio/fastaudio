@@ -4,3 +4,13 @@ markdown_extensions:
   - admonition
   - codehilite
   - mkautodoc
+
+repo_name: fastaudio/fastaudio
+repo_url: https://github.com/fastaudio/fastaudio
+edit_uri: ""
+
+theme:
+  name: material
+
+extra_css:
+  - css/custom.css

@@ -41,7 +41,7 @@ URLs.SPEAKERS250 = (
     "https://public-datasets.fra1.digitaloceanspaces.com/250-speakers.tar"
 )
 URLs.ESC50 = "https://github.com/karoldvl/ESC-50/archive/master.zip"
-
+URLs.SAMPLE_SPEAKERS10 = "https://github.com/fastaudio/10_Speakers_Sample/archive/master.zip"
 
 def tar_extract_at_filename(fname, dest):
     "Extract `fname` to `dest`/`fname`.name folder using `tarfile`"

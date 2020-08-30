@@ -1,10 +1,11 @@
 import torchaudio
 from fastai.data.external import URLs
 from fastai.data.transforms import Transform, get_files
-from fastai.imports import Path, mimetypes, plt, tarfile
+from fastai.imports import Path, mimetypes, tarfile
 from fastai.torch_core import TensorBase
-from fastcore.dispatch import retain_type
-from fastcore.utils import add_props, delegates
+from fastai.vision.data import get_grid
+from fastcore.dispatch import retain_type, typedispatch
+from fastcore.utils import add_props, delegates, ifnone
 from IPython.display import Audio, display
 from librosa.display import waveplot
 
@@ -53,7 +54,7 @@ class AudioTensor(TensorBase):
     def sr(self):
         return self.get_meta("sr")
 
-    def __new__(cls, x, sr, **kwargs):
+    def __new__(cls, x, sr=None, **kwargs):
         return super().__new__(cls, x, sr=sr, **kwargs)
 
     # This one should probably use set_meta() but there is no documentation,
@@ -76,8 +77,8 @@ class AudioTensor(TensorBase):
         "Show audio clip using `merge(self._show_args, kwargs)`"
         if hear:
             self.hear()
-        show_audio_signal(self, ctx=ctx, **kwargs)
-        plt.show()
+        return show_audio_signal(self, ctx=ctx, **kwargs)
+        # plt.show()
 
 
 def _get_f(fn):
@@ -91,14 +92,43 @@ def _get_f(fn):
 setattr(AudioTensor, "__getitem__", _get_f("__getitem__"))
 
 
-def show_audio_signal(ai, ctx, **kwargs):
-    if ai.nchannels > 1:
-        _, axs = plt.subplots(ai.nchannels, 1, figsize=(6, 4 * ai.nchannels))
-        for i, channel in enumerate(ai):
-            waveplot(channel.numpy(), ai.sr, ax=axs[i], **kwargs)
-    else:
-        axs = plt.subplots(ai.nchannels, 1)[1] if ctx is None else ctx
-        waveplot(ai.squeeze(0).numpy(), ai.sr, ax=axs, **kwargs)
+def show_audio_signal(ai, ctx, ax=None, title="", **kwargs):
+    ax = ifnone(ax, ctx)
+
+    ax.axis(False)
+    for i, channel in enumerate(ai):
+        # x_start, y_start, x_lenght, y_lenght, all in percent
+        ia = ax.inset_axes((i / ai.nchannels, 0.2, 1 / ai.nchannels, 0.7))
+        waveplot(channel.cpu().numpy(), ai.sr, ax=ia, **kwargs)
+        ia.set_title(f"Channel {i}")
+    ax.set_title(title)
+
+    return ax
+
+
+@typedispatch
+def show_batch(
+    x: AudioTensor,
+    y,
+    samples,
+    ctxs=None,
+    max_n=6,
+    nrows=2,
+    ncols=1,
+    figsize=None,
+    **kwargs,
+):
+    if figsize is None:
+        figsize = (4 * x.nchannels, 6)
+
+    if ctxs is None:
+        ctxs = get_grid(
+            min(len(samples), max_n), nrows=nrows, ncols=ncols, figsize=figsize
+        )
+    ctxs = show_batch[object](
+        x, y, samples, ctxs=ctxs, max_n=max_n, hear=False, **kwargs
+    )
+    return ctxs
 
 
 class OpenAudio(Transform):

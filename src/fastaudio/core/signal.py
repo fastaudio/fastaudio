@@ -1,7 +1,7 @@
 import torchaudio
 from fastai.data.external import URLs
 from fastai.data.transforms import Transform, get_files
-from fastai.imports import Path, mimetypes, tarfile
+from fastai.imports import Path, mimetypes, plt, tarfile
 from fastai.torch_core import TensorBase
 from fastai.vision.data import get_grid
 from fastcore.dispatch import retain_type, typedispatch
@@ -84,17 +84,16 @@ class AudioTensor(TensorBase):
 
     def hear(self):
         "Listen to audio clip. Creates a html player."
-        display(Audio(self, rate=self.sr))
+        display(Audio(self.cpu(), rate=self.sr))
 
     def show(self, ctx=None, hear=True, **kwargs):
-        """Show audio clip using matplotlib.
-        Pass `hear=True` to also display a player
-        to listen.
+        """Show audio clip using librosa.
+        Pass `hear=True` to also display a html
+        player to listen.
         """
         if hear:
             self.hear()
         return show_audio_signal(self, ctx=ctx, **kwargs)
-        # plt.show()
 
 
 def _get_f(fn):
@@ -110,7 +109,8 @@ setattr(AudioTensor, "__getitem__", _get_f("__getitem__"))
 
 def show_audio_signal(ai, ctx, ax=None, title="", **kwargs):
     ax = ifnone(ax, ctx)
-
+    if ax is None:
+        _, ax = plt.subplots()
     ax.axis(False)
     for i, channel in enumerate(ai):
         # x_start, y_start, x_lenght, y_lenght, all in percent

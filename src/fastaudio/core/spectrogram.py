@@ -69,7 +69,8 @@ class AudioSpectrogram(TensorImageBase):
 
 def show_spectrogram(sg, title="", ax=None, ctx=None, **kwargs):
     ax = ifnone(ax, ctx)
-
+    if ax is None:
+        _, ax = plt.subplots()
     ax.axis(False)
     for i, channel in enumerate(sg):
         # x_start, y_start, x_lenght, y_lenght, all in percent

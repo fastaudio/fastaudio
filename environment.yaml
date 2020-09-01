@@ -7,12 +7,12 @@ channels:
 dependencies:
   - python>=3.6
   - fastai>=2.0
-  - pytorch
-  - torchaudio
+  - pytorch>=1.6
+  - torchaudio>=0.6
   - cudatoolkit=10.1
-  - librosa
-  - pip
-  - IPython
+  - librosa>=0.8
+  - pip>=20.2
+  - IPython>=7.18
   - pip:
-    - colorednoise
+    - colorednoise>=1.1
     - git+https://github.com/fastaudio/fastaudio.git

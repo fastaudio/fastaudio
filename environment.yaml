@@ -15,3 +15,4 @@ dependencies:
   - IPython
   - pip:
     - colorednoise
+    - git+https://github.com/fastaudio/fastaudio.git

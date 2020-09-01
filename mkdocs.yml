@@ -5,6 +5,9 @@ markdown_extensions:
   - codehilite
   - mkautodoc
 
+plugins:
+  - mknotebooks
+
 repo_name: fastaudio/fastaudio
 repo_url: https://github.com/fastaudio/fastaudio
 edit_uri: ""

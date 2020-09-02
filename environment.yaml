@@ -12,7 +12,7 @@ dependencies:
   - cudatoolkit=10.1
   - librosa>=0.8
   - pip>=20.2
-  - IPython>=7.18
+  - IPython>=7.16
   - pip:
     - colorednoise>=1.1
     - git+https://github.com/fastaudio/fastaudio.git

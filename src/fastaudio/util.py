@@ -1,11 +1,14 @@
 import torch
 from fastaudio.core.signal import AudioTensor
+from math import pi
 
-def create_sin_wave(seconds = 2, sr = 16000, freq = 400)
+__all__  = ['test_audio_tensor']
+
+def create_sin_wave(seconds = 5, sr = 16000, freq = 400):
     "Creates a sin wave to be used for tests"
     max_samples = freq*seconds*2*pi
     rate = 2*pi*freq/sr
-    samples = torch.arange(0, max_samples,, rate, dtype=torch.float)
+    samples = torch.arange(0, max_samples, rate, dtype=torch.float)
     sin_wave = torch.sin(samples)
     return sin_wave, sr
 

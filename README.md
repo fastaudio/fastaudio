@@ -5,19 +5,37 @@
 
 In the future we will offer conda and pip installs, but as the code is rapidly changing, we recommend that only those interested in contributing and experimenting install for now. Everyone else should use [Fastai audio v1](https://github.com/mogwai/fastai_audio)
 
-To install:
+---
+
+To install using anaconda:
 
 ```
+wget https://raw.githubusercontent.com/fastaudio/fastaudio/master/environment.yaml
+conda env create -f environment.yaml
+```
+Then, a new environment with the name `fastaudio` will be created and you can access it by running `conda activate fastaudio`
+
+---
+
+Alternative install method using pip:
+
+```
+pip install git+https://github.com/fastaudio/fastaudio.git
+```
+
+---
+
+If you plan on **contributing** to the library instead, you will need to do a editable install:
+
+```
+# Optional step if using conda
+conda create -n fastaudio python=3.7
+conda activate fastaudio
+```
+
+```
+# Editable install
 git clone https://github.com/fastaudio/fastaudio.git
-conda env create -f fastaudio/environment.yaml
-cd fastaudio && pip install .
-```
-
-If you plan on contributing to the library instead, you will need to do a editable install:
-
-```
-git clone https://github.com/fastaudio/fastaudio.git
-conda env create -f fastaudio/environment.yaml
 cd fastaudio
 pip install -e .[dev,testing]
 pre-commit install

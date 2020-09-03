@@ -7,8 +7,13 @@ from fastai2.data.all import test_warns as t_warns
 from fastai2.data.all import untar_data
 from torchaudio.transforms import MelSpectrogram
 
-from fastaudio.all import *
-from fastaudio.core.signal import URLs, tar_extract_at_filename
+from fastaudio.all import (
+    AudioTensor,
+    MelSpectrogram,
+    SpectrogramTransformer,
+    URLs,
+    tar_extract_at_filename
+)
 
 
 def test_load_audio():
@@ -28,8 +33,8 @@ def test_load_audio():
     assert sg.f_max == 20000
     assert sg.hop_length == 512
     assert sg.sr == item0.sr
-    assert sg.mel == True
-    assert sg.to_db == True
+    assert sg.mel
+    assert sg.to_db
     assert sg.nchannels == 1
     assert sg.height == 137
     assert sg.n_mels == sg.height

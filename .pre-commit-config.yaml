@@ -1,6 +1,12 @@
 exclude: '^docs/conf.py'
 
 repos:
+
+- repo: https://github.com/pre-commit/mirrors-isort
+  rev: v4.3.4
+  hooks:
+  - id: isort
+
 - repo: git://github.com/pre-commit/pre-commit-hooks
   rev: v2.2.3
   hooks:
@@ -16,11 +22,6 @@ repos:
   - id: requirements-txt-fixer
   - id: mixed-line-ending
     args: ['--fix=no']
-  - id: flake8
-    args: ['--ignore=E203,E501,F811']  # default of Black
+  # - id: flake8
+  #   args: ['--ignore=E203,E501,F811,E712,']  # default of Black
     # F811 is necessary to allow multiple dispatch function redefinition
-
-- repo: https://github.com/pre-commit/mirrors-isort
-  rev: v4.3.4
-  hooks:
-  - id: isort

@@ -10,8 +10,9 @@ dependencies:
   - pytorch
   - torchaudio
   - cudatoolkit=10.1
-  - librosa
+  - librosa=0.7.0
   - pip
+  - numba=0.48.0
   - IPython
   - pip:
     - colorednoise

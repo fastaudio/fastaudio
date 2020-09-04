@@ -9,7 +9,6 @@ from torchaudio.transforms import MelSpectrogram
 
 from fastaudio.all import (
     AudioTensor,
-    MelSpectrogram,
     SpectrogramTransformer,
     URLs,
     tar_extract_at_filename

@@ -8,26 +8,15 @@ from fastai.data.all import untar_data
 
 from fastaudio.all import *
 from fastaudio.augment.signal import _shift
+from fastaudio.util import apply_transform
 
 
 @pytest.fixture(scope="session")
 def audio():
     return test_audio_tensor()
 
-
 def test_path(audio):
     assert audio != None
-
-
-def apply_transform(transform, inp):
-    """Generate a new input, apply transform, and display/return both input and output"""
-    inp_orig = inp.clone()
-    out = (
-        transform(inp, split_idx=0)
-        if isinstance(transform, RandTransform)
-        else transform(inp)
-    )
-    return inp_orig, out
 
 
 def test_silence_removed(audio):

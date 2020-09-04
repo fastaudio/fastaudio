@@ -1,6 +1,7 @@
 from math import pi
 
 import torch
+from fastai.vision.augment import RandTransform
 
 from fastaudio.core.signal import AudioTensor
 
@@ -21,3 +22,14 @@ def test_audio_tensor(seconds=2, sr=16000, channels=1):
     sin_wave, sr = create_sin_wave(seconds=seconds, sr=sr)
     sin_wave = sin_wave.repeat(channels, 1)
     return AudioTensor(sin_wave, sr)
+
+
+def apply_transform(transform, inp):
+    """Generate a new input, apply transform, and display/return both input and output"""
+    inp_orig = inp.clone()
+    out = (
+        transform(inp, split_idx=0)
+        if isinstance(transform, RandTransform)
+        else transform(inp)
+    )
+    return inp_orig, out

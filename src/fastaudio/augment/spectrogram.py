@@ -13,7 +13,7 @@ class CropTime(Transform):
     """Random crops full spectrogram to be length specified in ms by crop_duration"""
 
     def __init__(self, duration, pad_mode=AudioPadType.Zeros):
-        store_attr(self, "duration, pad_mode")
+        store_attr()
 
     def encodes(self, sg: AudioSpectrogram) -> AudioSpectrogram:
         sr, hop = sg.sr, sg.hop_length
@@ -53,8 +53,8 @@ def _tfm_pad_spectro(sg, width, pad_mode=AudioPadType.Zeros):
 class MaskFreq(Transform):
     """Google SpecAugment frequency masking from https://arxiv.org/abs/1904.08779."""
 
-    def __init__(self, num_masks=1, size=20, start=None, val=None, **kwargs):
-        store_attr(self, "num_masks,size,start,val")
+    def __init__(self, num_masks=1, size=20, start=None, val=None):
+        store_attr()
 
     def encodes(self, sg: AudioSpectrogram) -> AudioSpectrogram:
         channel_mean = sg.contiguous().view(sg.size(0), -1).mean(-1)[:, None, None]
@@ -77,13 +77,13 @@ class MaskFreq(Transform):
 class MaskTime(Transform):
     """Google SpecAugment time masking from https://arxiv.org/abs/1904.08779."""
 
-    def __init__(self, num_masks=1, size=20, start=None, val=None, **kwargs):
-        store_attr(self, "num_masks,size,start,val,kwargs")
+    def __init__(self, num_masks=1, size=20, start=None, val=None):
+        store_attr()
 
     def encodes(self, sg: AudioSpectrogram) -> AudioSpectrogram:
         sg.data = torch.einsum("...ij->...ji", sg)
         sg.data = MaskFreq(
-            self.num_masks, self.size, self.start, self.val, **self.kwargs
+            self.num_masks, self.size, self.start, self.val,
         )(sg)
         sg.data = torch.einsum("...ij->...ji", sg)
         return sg
@@ -91,11 +91,10 @@ class MaskTime(Transform):
 
 class SGRoll(Transform):
     """Shifts spectrogram along x-axis wrapping around to other side"""
-
-    def __init__(self, max_shift_pct=0.5, direction=0, **kwargs):
+    def __init__(self, max_shift_pct=0.5, direction=0):
         if int(direction) not in [-1, 0, 1]:
             raise ValueError("Direction must be -1(left) 0(bidirectional) or 1(right)")
-        store_attr(self, "max_shift_pct,direction")
+        store_attr()
 
     def encodes(self, sg: AudioSpectrogram) -> AudioSpectrogram:
         direction = random.choice([-1, 1]) if self.direction == 0 else self.direction
@@ -135,8 +134,8 @@ class Delta(Transform):
 class TfmResize(Transform):
     """Temporary fix to allow image resizing transform"""
 
-    def __init__(self, size, interp_mode="bilinear", **kwargs):
-        store_attr(self, "size,interp_mode")
+    def __init__(self, size, interp_mode="bilinear"):
+        store_attr()
 
     def encodes(self, sg: AudioSpectrogram) -> AudioSpectrogram:
         if isinstance(self.size, int):

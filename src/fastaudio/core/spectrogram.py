@@ -8,7 +8,7 @@ from fastai.imports import inspect, partial, plt
 from fastai.vision.data import get_grid
 from fastcore.dispatch import typedispatch
 from fastcore.transform import Transform
-from fastcore.utils import L, add_props, delegates, ifnone
+from fastcore.utils import L, add_props, delegates, ifnone, store_attr
 from librosa.display import specshow
 from torch import nn
 
@@ -121,8 +121,7 @@ class AudioToSpec(Transform):
     """
 
     def __init__(self, pipe, settings):
-        self.pipe = pipe
-        self.settings = settings
+        store_attr()
 
     @classmethod
     def from_cfg(cls, audio_cfg):

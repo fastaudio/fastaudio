@@ -9,10 +9,15 @@ from fastaudio.all import *
 
 @pytest.fixture(scope="session")
 def audio():
+    """
+    Create a test tensor to be played with. This tensor will only be created
+    once at the begging of the tests in this file
+    """
     return test_audio_tensor()
 
 
 def test_path(audio):
+    "Check that the audio tensor exists"
     assert audio != None
 
 
@@ -71,6 +76,10 @@ def test_resample_multi_channel(audio):
 
 
 def test_upsample(audio):
+    """
+    Make sure that the Upsampling is possible. This can
+    take a while depending on the target sample rate
+    """
     for _ in range(10):
         random_sr = random.randint(16000, 72000)
         random_upsample = Resample(random_sr)(audio)
@@ -83,23 +92,12 @@ def test_cropping():
     "Can use the CropSignal Transform"
     audio = test_audio_tensor(seconds=10, sr=1000)
 
-    inp, out1000 = apply_transform(CropSignal(1000), audio.clone())
-    inp, out2000 = apply_transform(CropSignal(2000), audio.clone())
-    inp, out5000 = apply_transform(CropSignal(5000), audio.clone())
+    for i in [1, 2, 5]:
+        inp, out = apply_transform(CropSignal(i*1000), audio.clone())
 
-    _test_eq(out1000.duration, 1)
-    _test_eq(out2000.duration, 2)
-    _test_eq(out5000.duration, 5)
+        _test_eq(out.duration, i)
+        _test_eq(out.nsamples, out.duration * inp.sr)
 
-    _test_eq(out1000.nsamples, out1000.duration * inp.sr)
-    _test_eq(out2000.nsamples, out2000.duration * inp.sr)
-    _test_eq(out5000.nsamples, out5000.duration * inp.sr)
-
-    # Multi Channel Cropping
-    inp, mc1000 = apply_transform(CropSignal(1000), audio.clone())
-    inp, mc2000 = apply_transform(CropSignal(2000), audio.clone())
-    inp, mc5000 = apply_transform(CropSignal(5000), audio.clone())
-
-    _test_eq(mc1000.duration, 1)
-    _test_eq(mc2000.duration, 2)
-    _test_eq(mc5000.duration, 5)
+        # Multi Channel Cropping
+        inp, mc = apply_transform(CropSignal(1000), audio.clone())
+        _test_eq(mc.duration, i)

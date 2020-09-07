@@ -9,7 +9,7 @@ def test_create_sin_wave():
     assert wave.shape[0] == 5 * sr
 
 
-def test_shape_of_test_tesnor():
+def test_shape_of_sin_wave_tensor():
     sr = 16000
     secs = 2
     ai = test_audio_tensor(secs, sr)

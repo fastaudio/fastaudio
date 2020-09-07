@@ -28,8 +28,8 @@ def apply_transform(transform, inp):
     """Generate a new input, apply transform, and display/return both input and output"""
     inp_orig = inp.clone()
     out = (
-        transform(inp, split_idx=0)
+        transform(inp_orig, split_idx=0)
         if isinstance(transform, RandTransform)
-        else transform(inp)
+        else transform(inp_orig)
     )
-    return inp_orig, out
+    return inp.clone(), out

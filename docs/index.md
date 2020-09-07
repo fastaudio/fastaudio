@@ -5,6 +5,6 @@
 
 # Quick Start
 
-[Google Colab Notebook](https://colab.research.google.com/gist/PranY/ba0245752fff8ec2eb645afcc13f74f6/music.ipynb)
+[Google Colab Notebook](https://colab.research.google.com/github/fastaudio/fastaudio/blob/master/docs/Training_tutorial.ipynb)
 
 [Zachary Mueller's class](https://youtu.be/0IQYJNkAI3k?t=1665)

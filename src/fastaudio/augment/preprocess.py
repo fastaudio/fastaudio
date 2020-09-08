@@ -34,7 +34,7 @@ class RemoveSilence(Transform):
     def __init__(
         self, remove_type=RemoveType.Trim, threshold=20, pad_ms=20  # noqa: F821
     ):
-        store_attr(self, "remove_type, threshold, pad_ms")
+        store_attr()
 
     def encodes(self, ai: AudioTensor) -> AudioTensor:
         if self.remove_type is None:

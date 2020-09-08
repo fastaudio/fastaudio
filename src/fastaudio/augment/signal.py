@@ -19,7 +19,7 @@ class CropSignal(Transform):
     """Crops signal to be length specified in ms by duration, padding if needed"""
 
     def __init__(self, duration, pad_mode=AudioPadType.Zeros):  # noqa: F821
-        store_attr(self, "duration, pad_mode")
+        store_attr()
 
     def encodes(self, ai: AudioTensor) -> AudioTensor:
         sig = ai.data
@@ -81,7 +81,7 @@ class SignalShifter(RandTransform):
     def __init__(self, p=0.5, max_pct=0.2, max_time=None, direction=0, roll=False):
         if direction not in [-1, 0, 1]:
             raise ValueError("Direction must be -1(left) 0(bidirectional) or 1(right)")
-        store_attr(self, "max_pct,max_time,direction,roll")
+        store_attr(but="p")
         super().__init__(p=p)
 
     def before_call(self, b, split_idx):
@@ -117,7 +117,7 @@ class AddNoise(Transform):
     "Adds noise of specified color and level to the audio signal"
 
     def __init__(self, noise_level=0.05, color=NoiseColor.White):  # noqa: F821
-        store_attr(self, "noise_level, color")
+        store_attr()
 
     def encodes(self, ai: AudioTensor) -> AudioTensor:
         # if it's white noise, implement our own for speed

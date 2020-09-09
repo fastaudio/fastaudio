@@ -2,9 +2,9 @@ import inspect
 import math
 
 import torch
-from fastai2.data.all import test_close as _close
-from fastai2.data.all import test_warns as t_warns
-from fastai2.data.all import untar_data
+from fastai.data.all import test_close as _close
+from fastai.data.all import test_warns as t_warns
+from fastai.data.all import untar_data
 from torchaudio.transforms import MelSpectrogram
 
 from fastaudio.all import (

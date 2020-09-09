@@ -99,5 +99,5 @@ def test_cropping():
         _test_eq(out.nsamples, out.duration * inp.sr)
 
         # Multi Channel Cropping
-        inp, mc = apply_transform(CropSignal(1000), audio.clone())
+        inp, mc = apply_transform(CropSignal(i*1000), audio.clone())
         _test_eq(mc.duration, i)

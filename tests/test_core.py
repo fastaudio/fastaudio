@@ -13,12 +13,15 @@ from fastaudio.all import (
     URLs,
     tar_extract_at_filename
 )
+from fastaudio.util import test_audio_tensor
 
+
+# TODO
+def test_download_audio():
+    pass
 
 def test_load_audio():
-    p = untar_data(URLs.SPEAKERS10, extract_func=tar_extract_at_filename)
-
-    item0 = AudioTensor.create(p / "f0001_us_f0001_00001.wav")
+    item0 = test_audio_tensor()
     DBMelSpec = SpectrogramTransformer(mel=True, to_db=True)
     a2s = DBMelSpec(f_max=20000, n_mels=137)
     sg = a2s(item0)
@@ -26,8 +29,8 @@ def test_load_audio():
     assert type(item0.data) == torch.Tensor
     assert item0.sr == 16000
     assert item0.nchannels == 1
-    assert item0.nsamples == 74880
-    assert item0.duration == 4.68
+    assert item0.nsamples == 32000
+    assert item0.duration == 2
 
     assert sg.f_max == 20000
     assert sg.hop_length == 512
@@ -37,7 +40,7 @@ def test_load_audio():
     assert sg.nchannels == 1
     assert sg.height == 137
     assert sg.n_mels == sg.height
-    assert sg.width == 147
+    assert sg.width == 63
 
     defaults = {
         k: v.default for k, v in inspect.signature(MelSpectrogram).parameters.items()

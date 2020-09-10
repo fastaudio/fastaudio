@@ -1,3 +1,8 @@
+![Tests](https://github.com/fastaudio/fastaudio/workflows/Python%20package/badge.svg)
+[![Docs](https://img.shields.io/badge/docs-latest-green)](https://fastaudio.github.io/)
+[![codecov](https://codecov.io/gh/fastaudio/fastaudio/branch/master/graph/badge.svg)](https://codecov.io/gh/fastaudio/fastaudio)
+
+
 # Fastaudio
 > An audio module for fastai v2. We want to help you build audio machine learning applications while minimizing the need for audio domain expertise. Currently under development.
 

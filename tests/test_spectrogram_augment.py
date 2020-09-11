@@ -98,19 +98,6 @@ def test_mask_freq():
     _test_eq(out[:, :, start:start+size], val *
              torch.ones_like(inp)[:, :, start:start+size])
 
-
-# def test_delta_channels():
-#     " nchannels for a spectrogram is how many channels its original audio had "
-#     delta = Delta()
-#     audio = test_audio_tensor(channels=1)
-#     a2s = AudioToSpec.from_cfg(AudioConfig.Voice())
-#     sg = a2s(audio)
-#     inp, out = apply_transform(delta, sg)
-
-#     _test_eq(out.nchannels, inp.nchannels)
-#     _test_eq(out.shape[1:], inp.shape[1:])
-#     _test_ne(out[0], out[1])
-
 def test_resize_int():
     # Test when size is an int
     size = 224

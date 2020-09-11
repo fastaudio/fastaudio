@@ -22,6 +22,6 @@ repos:
   - id: requirements-txt-fixer
   - id: mixed-line-ending
     args: ['--fix=no']
-  # - id: flake8
-  #   args: ['--ignore=E203,E501,F811,E712,']  # default of Black
+  - id: flake8
+    args: ['--ignore=E203,E501,F811,E712,']  # default of Black
     # F811 is necessary to allow multiple dispatch function redefinition

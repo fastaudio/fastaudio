@@ -1,10 +1,20 @@
+import random
+
 import pytest
 
+import torch
 from fastai.data.all import test_close as _test_close
 from fastai.data.all import test_eq as _test_eq
-from fastai.data.all import untar_data
 
-from fastaudio.all import *
+from fastaudio.all import (
+    AudioTensor,
+    CropSignal,
+    RandTransform,
+    RemoveSilence,
+    RemoveType,
+    Resample
+)
+from fastaudio.util import test_audio_tensor
 
 
 @pytest.fixture(scope="session")
@@ -18,7 +28,8 @@ def audio():
 
 def test_path(audio):
     "Check that the audio tensor exists"
-    assert audio != None
+    if audio is None:
+        raise Exception("Could not generate audio")
 
 
 def apply_transform(transform, inp):
@@ -45,8 +56,7 @@ def test_silence_not_removed(audio):
     orig_samples = test_aud.nsamples
 
     for rm_type in [RemoveType.All, RemoveType.Trim, RemoveType.Split]:
-        silence_audio_trim = RemoveSilence(
-            rm_type, threshold=20, pad_ms=20)(test_aud)
+        silence_audio_trim = RemoveSilence(rm_type, threshold=20, pad_ms=20)(test_aud)
         assert orig_samples == silence_audio_trim.nsamples
 
 
@@ -84,8 +94,7 @@ def test_upsample(audio):
         random_sr = random.randint(16000, 72000)
         random_upsample = Resample(random_sr)(audio)
         num_samples = random_upsample.nsamples
-        _test_close(num_samples, abs(audio.nsamples //
-                                     (audio.sr / random_sr)), eps=1.1)
+        _test_close(num_samples, abs(audio.nsamples // (audio.sr / random_sr)), eps=1.1)
 
 
 def test_cropping():
@@ -93,11 +102,11 @@ def test_cropping():
     audio = test_audio_tensor(seconds=10, sr=1000)
 
     for i in [1, 2, 5]:
-        inp, out = apply_transform(CropSignal(i*1000), audio.clone())
+        inp, out = apply_transform(CropSignal(i * 1000), audio.clone())
 
         _test_eq(out.duration, i)
         _test_eq(out.nsamples, out.duration * inp.sr)
 
         # Multi Channel Cropping
-        inp, mc = apply_transform(CropSignal(i*1000), audio.clone())
+        inp, mc = apply_transform(CropSignal(i * 1000), audio.clone())
         _test_eq(mc.duration, i)

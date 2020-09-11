@@ -75,7 +75,7 @@ def shift_signal(t: torch.Tensor, shift, roll):
 
 class SignalShifter(RandTransform):
     """Randomly shifts the audio signal by `max_pct` %.
-        direction must be -1(left) 0(bidirectional) or 1(right).
+    direction must be -1(left) 0(bidirectional) or 1(right).
     """
 
     def __init__(self, p=0.5, max_pct=0.2, max_time=None, direction=0, roll=False):

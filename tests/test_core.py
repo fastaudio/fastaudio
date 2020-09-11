@@ -3,22 +3,16 @@ import math
 
 import torch
 from fastai.data.all import test_close as _close
-from fastai.data.all import test_warns as t_warns
-from fastai.data.all import untar_data
 from torchaudio.transforms import MelSpectrogram
 
-from fastaudio.all import (
-    AudioTensor,
-    SpectrogramTransformer,
-    URLs,
-    tar_extract_at_filename
-)
+from fastaudio.all import AudioTensor, SpectrogramTransformer
 from fastaudio.util import test_audio_tensor
 
 
 # TODO
 def test_download_audio():
     pass
+
 
 def test_load_audio():
     item0 = test_audio_tensor()

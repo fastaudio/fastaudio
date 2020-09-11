@@ -117,7 +117,7 @@ _ToDB = torchaudio.transforms.AmplitudeToDB
 
 class AudioToSpec(Transform):
     """
-        Transform to create spectrograms from audio tensors.
+    Transform to create spectrograms from audio tensors.
     """
 
     def __init__(self, pipe, settings):
@@ -210,7 +210,7 @@ def get_usable_kwargs(func, kwargs, exclude=None):
 @delegates(_GenMFCC.__init__)
 class AudioToMFCC(Transform):
     """
-        Transform to create MFCC features from audio tensors.
+    Transform to create MFCC features from audio tensors.
     """
 
     def __init__(self, **kwargs):

@@ -83,7 +83,10 @@ class MaskTime(Transform):
     def encodes(self, sg: AudioSpectrogram) -> AudioSpectrogram:
         sg.data = torch.einsum("...ij->...ji", sg)
         sg.data = MaskFreq(
-            self.num_masks, self.size, self.start, self.val,
+            self.num_masks,
+            self.size,
+            self.start,
+            self.val,
         )(sg)
         sg.data = torch.einsum("...ij->...ji", sg)
         return sg
@@ -91,6 +94,7 @@ class MaskTime(Transform):
 
 class SGRoll(Transform):
     """Shifts spectrogram along x-axis wrapping around to other side"""
+
     def __init__(self, max_shift_pct=0.5, direction=0):
         if int(direction) not in [-1, 0, 1]:
             raise ValueError("Direction must be -1(left) 0(bidirectional) or 1(right)")

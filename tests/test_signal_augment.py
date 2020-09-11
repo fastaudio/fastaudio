@@ -1,22 +1,35 @@
+import random
+
 import pytest
 
+import torch
 from fastai.data.all import test_close as _test_close
 from fastai.data.all import test_eq as _test_eq
 from fastai.data.all import test_fail as _test_fail
 from fastai.data.all import test_ne as _test_ne
-from fastai.data.all import untar_data
 
-from fastaudio.all import *
+from fastaudio.all import (
+    AudioPadType,
+    AudioTensor,
+    CropSignal,
+    DownmixMono,
+    RemoveSilence,
+    RemoveType,
+    Resample,
+    SignalShifter
+)
 from fastaudio.augment.signal import _shift
-from fastaudio.util import apply_transform
+from fastaudio.util import apply_transform, test_audio_tensor
 
 
 @pytest.fixture(scope="session")
 def audio():
     return test_audio_tensor()
 
+
 def test_path(audio):
-    assert audio != None
+    if audio is None:
+        raise Exception("Could not find audio")
 
 
 def test_silence_removed(audio):
@@ -32,8 +45,7 @@ def test_silence_not_removed(audio):
     orig_samples = test_aud.nsamples
 
     for rm_type in [RemoveType.All, RemoveType.Trim, RemoveType.Split]:
-        silence_audio_trim = RemoveSilence(
-            rm_type, threshold=20, pad_ms=20)(test_aud)
+        silence_audio_trim = RemoveSilence(rm_type, threshold=20, pad_ms=20)(test_aud)
         assert orig_samples == silence_audio_trim.nsamples
 
 
@@ -67,8 +79,7 @@ def test_upsample(audio):
         random_sr = random.randint(16000, 72000)
         random_upsample = Resample(random_sr)(audio)
         num_samples = random_upsample.nsamples
-        _test_close(num_samples, abs(audio.nsamples //
-                                     (audio.sr / random_sr)), eps=1.1)
+        _test_close(num_samples, abs(audio.nsamples // (audio.sr / random_sr)), eps=1.1)
 
 
 def test_cropping():
@@ -99,9 +110,8 @@ def test_cropping():
 
 def test_padding_after(audio):
     "Padding is added to the end  but not the beginning"
-    new_duration = (audio.duration+1)*1000
-    cropsig_pad_after = CropSignal(
-        new_duration, pad_mode=AudioPadType.Zeros_After)
+    new_duration = (audio.duration + 1) * 1000
+    cropsig_pad_after = CropSignal(new_duration, pad_mode=AudioPadType.Zeros_After)
     # generate a random input signal that is 3s long
     inp, out = apply_transform(cropsig_pad_after, audio)
     # test end of signal is padded with zeros
@@ -112,7 +122,7 @@ def test_padding_after(audio):
 
 def test_padding_both_side(audio):
     "Make sure they are padding on both sides"
-    new_duration = (audio.duration+1)*1000
+    new_duration = (audio.duration + 1) * 1000
     cropsig_pad_after = CropSignal(new_duration)
     inp, out = apply_transform(cropsig_pad_after, audio)
     _test_eq(out[:, 0:2], out[:, -2:])
@@ -123,13 +133,13 @@ def test_resize_signal_repeat(audio):
     Test pad_mode repeat by making sure that columns are
     equal at the appropriate offsets
     """
-    dur = audio.duration*1000
+    dur = audio.duration * 1000
     repeat = 3
-    cropsig_repeat = CropSignal(dur*repeat, pad_mode=AudioPadType.Repeat)
+    cropsig_repeat = CropSignal(dur * repeat, pad_mode=AudioPadType.Repeat)
     inp, out = apply_transform(cropsig_repeat, audio)
     for i in range(repeat):
-        s = int(i*inp.nsamples)
-        e = int(s+inp.nsamples)
+        s = int(i * inp.nsamples)
+        e = int(s + inp.nsamples)
         print(out[:, s:e].shape, inp.shape)
         _test_eq(out[:, s:e], inp)
 
@@ -140,20 +150,27 @@ def test_fail_invalid_pad_mode():
 
 def test_shift():
     t1 = torch.tensor([[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]])
-    t3 = torch.tensor([
-        [1,   2,  3,  4,  5,  6,  7,  8, 9, 10],
-        [11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
-        [21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
-    ])
+    t3 = torch.tensor(
+        [
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            [11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+            [21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
+        ]
+    )
     b4 = torch.stack([t3, t3, t3, t3])
 
     _test_eq(b4.shape, torch.Size([4, 3, 10]))
     _test_eq(_shift(t1, 4), torch.tensor([[0, 0, 0, 0, 1, 2, 3, 4, 5, 6]]))
-    _test_eq(_shift(t3, -2), torch.tensor([
-        [3, 4, 5, 6, 7, 8, 9, 10, 0, 0],
-        [13, 14, 15, 16, 17, 18, 19, 20, 0, 0],
-        [23, 24, 25, 26, 27, 28, 29, 30, 0, 0],
-    ]))
+    _test_eq(
+        _shift(t3, -2),
+        torch.tensor(
+            [
+                [3, 4, 5, 6, 7, 8, 9, 10, 0, 0],
+                [13, 14, 15, 16, 17, 18, 19, 20, 0, 0],
+                [23, 24, 25, 26, 27, 28, 29, 30, 0, 0],
+            ]
+        ),
+    )
 
 
 def test_rolling(audio):

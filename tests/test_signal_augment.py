@@ -11,11 +11,11 @@ from fastai.data.all import test_ne as _test_ne
 from fastaudio.all import (
     AudioPadType,
     AudioTensor,
-    CropSignal,
     DownmixMono,
     RemoveSilence,
     RemoveType,
     Resample,
+    ResizeSignal,
     SignalShifter
 )
 from fastaudio.augment.signal import _shift
@@ -83,12 +83,12 @@ def test_upsample(audio):
 
 
 def test_cropping():
-    "Can use the CropSignal Transform"
+    "Can use the ResizeSignal Transform"
     audio = test_audio_tensor(seconds=10, sr=1000)
 
-    inp, out1000 = apply_transform(CropSignal(1000), audio.clone())
-    inp, out2000 = apply_transform(CropSignal(2000), audio.clone())
-    inp, out5000 = apply_transform(CropSignal(5000), audio.clone())
+    inp, out1000 = apply_transform(ResizeSignal(1000), audio.clone())
+    inp, out2000 = apply_transform(ResizeSignal(2000), audio.clone())
+    inp, out5000 = apply_transform(ResizeSignal(5000), audio.clone())
 
     _test_eq(out1000.duration, 1)
     _test_eq(out2000.duration, 2)
@@ -99,9 +99,9 @@ def test_cropping():
     _test_eq(out5000.nsamples, out5000.duration * inp.sr)
 
     # Multi Channel Cropping
-    inp, mc1000 = apply_transform(CropSignal(1000), audio.clone())
-    inp, mc2000 = apply_transform(CropSignal(2000), audio.clone())
-    inp, mc5000 = apply_transform(CropSignal(5000), audio.clone())
+    inp, mc1000 = apply_transform(ResizeSignal(1000), audio.clone())
+    inp, mc2000 = apply_transform(ResizeSignal(2000), audio.clone())
+    inp, mc5000 = apply_transform(ResizeSignal(5000), audio.clone())
 
     _test_eq(mc1000.duration, 1)
     _test_eq(mc2000.duration, 2)
@@ -111,7 +111,7 @@ def test_cropping():
 def test_padding_after(audio):
     "Padding is added to the end  but not the beginning"
     new_duration = (audio.duration + 1) * 1000
-    cropsig_pad_after = CropSignal(new_duration, pad_mode=AudioPadType.Zeros_After)
+    cropsig_pad_after = ResizeSignal(new_duration, pad_mode=AudioPadType.Zeros_After)
     # generate a random input signal that is 3s long
     inp, out = apply_transform(cropsig_pad_after, audio)
     # test end of signal is padded with zeros
@@ -123,7 +123,7 @@ def test_padding_after(audio):
 def test_padding_both_side(audio):
     "Make sure they are padding on both sides"
     new_duration = (audio.duration + 1) * 1000
-    cropsig_pad_after = CropSignal(new_duration)
+    cropsig_pad_after = ResizeSignal(new_duration)
     inp, out = apply_transform(cropsig_pad_after, audio)
     _test_eq(out[:, 0:2], out[:, -2:])
 
@@ -135,7 +135,7 @@ def test_resize_signal_repeat(audio):
     """
     dur = audio.duration * 1000
     repeat = 3
-    cropsig_repeat = CropSignal(dur * repeat, pad_mode=AudioPadType.Repeat)
+    cropsig_repeat = ResizeSignal(dur * repeat, pad_mode=AudioPadType.Repeat)
     inp, out = apply_transform(cropsig_repeat, audio)
     for i in range(repeat):
         s = int(i * inp.nsamples)
@@ -145,7 +145,7 @@ def test_resize_signal_repeat(audio):
 
 
 def test_fail_invalid_pad_mode():
-    _test_fail(CropSignal(12000, pad_mode="tenchify"))
+    _test_fail(ResizeSignal(12000, pad_mode="tenchify"))
 
 
 def test_shift():

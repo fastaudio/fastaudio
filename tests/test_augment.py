@@ -8,11 +8,11 @@ from fastai.data.all import test_eq as _test_eq
 
 from fastaudio.all import (
     AudioTensor,
-    CropSignal,
     RandTransform,
     RemoveSilence,
     RemoveType,
-    Resample
+    Resample,
+    ResizeSignal
 )
 from fastaudio.util import test_audio_tensor
 
@@ -98,15 +98,15 @@ def test_upsample(audio):
 
 
 def test_cropping():
-    "Can use the CropSignal Transform"
+    "Can use the ResizeSignal Transform"
     audio = test_audio_tensor(seconds=10, sr=1000)
 
     for i in [1, 2, 5]:
-        inp, out = apply_transform(CropSignal(i * 1000), audio.clone())
+        inp, out = apply_transform(ResizeSignal(i * 1000), audio.clone())
 
         _test_eq(out.duration, i)
         _test_eq(out.nsamples, out.duration * inp.sr)
 
         # Multi Channel Cropping
-        inp, mc = apply_transform(CropSignal(i * 1000), audio.clone())
+        inp, mc = apply_transform(ResizeSignal(i * 1000), audio.clone())
         _test_eq(mc.duration, i)

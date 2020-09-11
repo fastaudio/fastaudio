@@ -15,7 +15,7 @@ mk_class(
 )
 
 
-class CropSignal(Transform):
+class ResizeSignal(Transform):
     """Crops signal to be length specified in ms by duration, padding if needed"""
 
     def __init__(self, duration, pad_mode=AudioPadType.Zeros):  # noqa: F821

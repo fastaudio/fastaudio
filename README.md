@@ -53,8 +53,15 @@ We are looking for contributors of all skill levels. If you don't have time to c
 ### How to contribute
 Create issues, write documentation, suggest/add features, submit PRs. We are open to anything.
 
-
 ## Note
 
 This project has been set up using PyScaffold 3.2.3. For details and usage
 information on PyScaffold see https://pyscaffold.org/.
+
+## Citation
+
+If you used this library in any research, please cite us.
+
+```
+ @misc{coultas blum_scart_bracco_2020, title={fastaudio/fastaudio}, url={https://github.com/fastaudio/fastaudio}, journal={GitHub}, author={Coultas Blum, Harry A and Scart, Lucas G. and Bracco, Robert}, year={2020}, month={Aug}} 
+```

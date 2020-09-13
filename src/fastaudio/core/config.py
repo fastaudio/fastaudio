@@ -16,7 +16,7 @@ from .signal import AudioTensor, get_audio_files
 
 def audio_item_tfms(sample_rate=16000, force_mono=True, crop_signal_to=None):
     """
-        Basic audio preprocessing transforms.
+    Basic audio preprocessing transforms.
     """
     tfms = []
     if sample_rate is not None:
@@ -30,8 +30,8 @@ def audio_item_tfms(sample_rate=16000, force_mono=True, crop_signal_to=None):
 
 class PreprocessAudio:
     """
-        Creates an audio tensor and run the basic preprocessing transforms on it.
-        Used while preprocessing the audios, this is not a `Transform`.
+    Creates an audio tensor and run the basic preprocessing transforms on it.
+    Used while preprocessing the audios, this is not a `Transform`.
     """
 
     @delegates(audio_item_tfms)
@@ -90,7 +90,7 @@ def config_from_func(func, name, **kwargs):
 
 class AudioConfig:
     """
-        Collection of configurations to build `AudioToSpec` transforms.
+    Collection of configurations to build `AudioToSpec` transforms.
     """
 
     # default configurations from the wrapped function

@@ -10,7 +10,7 @@ from fastcore.utils import delegates, ifnone
 from torchaudio import save as save_audio
 
 from ..augment.preprocess import Resample
-from ..augment.signal import CropSignal, DownmixMono
+from ..augment.signal import DownmixMono, ResizeSignal
 from .signal import AudioTensor, get_audio_files
 
 
@@ -24,7 +24,7 @@ def audio_item_tfms(sample_rate=16000, force_mono=True, crop_signal_to=None):
     if force_mono:
         tfms.append(DownmixMono())
     if crop_signal_to is not None:
-        tfms.append(CropSignal(duration=crop_signal_to))
+        tfms.append(ResizeSignal(duration=crop_signal_to))
     return tfms
 
 

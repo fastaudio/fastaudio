@@ -13,12 +13,12 @@ from fastaudio.all import (
     AudioConfig,
     AudioPadType,
     AudioToSpec,
-    CropSignal,
     CropTime,
     MaskFreq,
     MaskTime,
     OpenAudio,
     Pipeline,
+    ResizeSignal,
     SpectrogramTransformer,
     TfmResize,
     URLs
@@ -48,7 +48,7 @@ def test_crop_time():
 
 def test_crop_time_with_pipeline(ex_files):
     """
-    AudioToSpec->CropTime and CropSignal->AudioToSpec
+    AudioToSpec->CropTime and ResizeSignal->AudioToSpec
     will result in same size images
     """
     oa = OpenAudio(ex_files)
@@ -58,7 +58,7 @@ def test_crop_time_with_pipeline(ex_files):
     pipe_cropspec = Pipeline(
         [
             oa,
-            CropSignal(crop_dur),
+            ResizeSignal(crop_dur),
             DBMelSpec(hop_length=128),
         ]
     )

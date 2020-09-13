@@ -5,7 +5,7 @@ from fastai.imports import Path, mimetypes, plt, tarfile
 from fastai.torch_core import TensorBase
 from fastai.vision.data import get_grid
 from fastcore.dispatch import retain_type, typedispatch
-from fastcore.utils import add_props, delegates, ifnone, store_attr
+from fastcore.utils import add_props, delegates, ifnone
 from IPython.display import Audio, display
 from librosa.display import waveplot
 
@@ -153,7 +153,7 @@ class OpenAudio(Transform):
     """
 
     def __init__(self, items):
-        store_attr()
+        self.items = items
 
     def encodes(self, i):
         o = self.items[i]

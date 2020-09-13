@@ -3,7 +3,7 @@ import torch
 from fastai.imports import np, random
 from fastai.vision.augment import RandTransform
 from fastcore.transform import Transform
-from fastcore.utils import mk_class, patch, store_attr
+from fastcore.utils import mk_class, patch
 
 from ..core.signal import AudioTensor
 from ..core.spectrogram import AudioSpectrogram
@@ -19,7 +19,8 @@ class ResizeSignal(Transform):
     """Crops signal to be length specified in ms by duration, padding if needed"""
 
     def __init__(self, duration, pad_mode=AudioPadType.Zeros):  # noqa: F821
-        store_attr()
+        self.duration = duration
+        self.pad_mode = pad_mode
 
     def encodes(self, ai: AudioTensor) -> AudioTensor:
         sig = ai.data
@@ -81,7 +82,10 @@ class SignalShifter(RandTransform):
     def __init__(self, p=0.5, max_pct=0.2, max_time=None, direction=0, roll=False):
         if direction not in [-1, 0, 1]:
             raise ValueError("Direction must be -1(left) 0(bidirectional) or 1(right)")
-        store_attr(but="p")
+        self.max_pct = max_pct
+        self.max_time = max_time
+        self.direction = direction
+        self.roll = roll
         super().__init__(p=p)
 
     def before_call(self, b, split_idx):
@@ -117,7 +121,8 @@ class AddNoise(Transform):
     "Adds noise of specified color and level to the audio signal"
 
     def __init__(self, noise_level=0.05, color=NoiseColor.White):  # noqa: F821
-        store_attr()
+        self.noise_level = noise_level
+        self.color = color
 
     def encodes(self, ai: AudioTensor) -> AudioTensor:
         # if it's white noise, implement our own for speed

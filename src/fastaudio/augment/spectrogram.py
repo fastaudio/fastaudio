@@ -2,7 +2,7 @@ import librosa
 import torch
 from fastai.imports import partial, random
 from fastcore.transform import Transform
-from fastcore.utils import ifnone, store_attr
+from fastcore.utils import ifnone
 from torch.nn import functional as F
 
 from ..core.spectrogram import AudioSpectrogram
@@ -13,7 +13,8 @@ class CropTime(Transform):
     """Random crops full spectrogram to be length specified in ms by crop_duration"""
 
     def __init__(self, duration, pad_mode=AudioPadType.Zeros):
-        store_attr()
+        self.duration = duration
+        self.pad_mode = pad_mode
 
     def encodes(self, sg: AudioSpectrogram) -> AudioSpectrogram:
         sr, hop = sg.sr, sg.hop_length
@@ -54,7 +55,10 @@ class MaskFreq(Transform):
     """Google SpecAugment frequency masking from https://arxiv.org/abs/1904.08779."""
 
     def __init__(self, num_masks=1, size=20, start=None, val=None):
-        store_attr()
+        self.num_masks = num_masks
+        self.size = size
+        self.start = start
+        self.val = val
 
     def encodes(self, sg: AudioSpectrogram) -> AudioSpectrogram:
         channel_mean = sg.contiguous().view(sg.size(0), -1).mean(-1)[:, None, None]
@@ -78,7 +82,10 @@ class MaskTime(Transform):
     """Google SpecAugment time masking from https://arxiv.org/abs/1904.08779."""
 
     def __init__(self, num_masks=1, size=20, start=None, val=None):
-        store_attr()
+        self.num_masks = num_masks
+        self.size = size
+        self.start = start
+        self.val = val
 
     def encodes(self, sg: AudioSpectrogram) -> AudioSpectrogram:
         sg.data = torch.einsum("...ij->...ji", sg)
@@ -98,7 +105,8 @@ class SGRoll(Transform):
     def __init__(self, max_shift_pct=0.5, direction=0):
         if int(direction) not in [-1, 0, 1]:
             raise ValueError("Direction must be -1(left) 0(bidirectional) or 1(right)")
-        store_attr()
+        self.max_shift_pct = max_shift_pct
+        self.direction = direction
 
     def encodes(self, sg: AudioSpectrogram) -> AudioSpectrogram:
         direction = random.choice([-1, 1]) if self.direction == 0 else self.direction
@@ -139,7 +147,8 @@ class TfmResize(Transform):
     """Temporary fix to allow image resizing transform"""
 
     def __init__(self, size, interp_mode="bilinear"):
-        store_attr()
+        self.size = size
+        self.interp_mode = interp_mode
 
     def encodes(self, sg: AudioSpectrogram) -> AudioSpectrogram:
         if isinstance(self.size, int):

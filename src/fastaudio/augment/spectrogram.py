@@ -36,18 +36,19 @@ class CropTime(Transform):
 def _tfm_pad_spectro(sg, width, pad_mode=AudioPadType.Zeros):
     """Pad spectrogram to specified width, using specified pad mode"""
     c, y, x = sg.shape
-    pad_m = pad_mode.lower()
-    if pad_m in ["zeros", "zeros_after"]:
+    if pad_mode in [AudioPadType.Zeros, AudioPadType.Zeros_After]:
         padded = torch.zeros((c, y, width))
-        start = random.randint(0, width - x) if pad_m == "zeros" else 0
+        start = random.randint(0, width - x) if pad_mode == AudioPadType.Zeros else 0
         padded[:, :, start : start + x] = sg.data
         return padded
-    elif pad_m == "repeat":
+    elif pad_mode == AudioPadType.Repeat:
         repeats = width // x + 1
         return sg.repeat(1, 1, repeats)[:, :, :width]
     else:
         raise ValueError(
-            f"pad_mode {pad_m} not currently supported, only 'zeros', 'zeros_after', or 'repeat'"
+            f"""pad_mode {pad_mode} not currently supported,
+            only AudioPadType.Zeros, AudioPadType.Zeros_After,
+            or AudioPadType.Repeat"""
         )
 
 

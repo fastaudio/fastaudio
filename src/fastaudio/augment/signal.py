@@ -1,24 +1,27 @@
+from enum import Enum
+
 import colorednoise as cn
 import torch
 from fastai.imports import np, random
 from fastai.vision.augment import RandTransform
 from fastcore.transform import Transform
-from fastcore.utils import mk_class, patch
+from fastcore.utils import patch
 
 from ..core.signal import AudioTensor
 from ..core.spectrogram import AudioSpectrogram
 
-mk_class(
-    "AudioPadType",
-    **{o: o.lower() for o in ["Zeros", "Zeros_After", "Repeat"]},
-    doc="All methods of padding audio as attributes to get tab-completion and typo-proofing",
-)
+
+class AudioPadType(Enum):
+    "All methods of padding audio as attributes to get tab-completion and typo-proofing",
+    Zeros = "zeros"
+    Zeros_After = "zeros_after"
+    Repeat = "repeat"
 
 
 class ResizeSignal(Transform):
     """Crops signal to be length specified in ms by duration, padding if needed"""
 
-    def __init__(self, duration, pad_mode=AudioPadType.Zeros):  # noqa: F821
+    def __init__(self, duration, pad_mode=AudioPadType.Zeros):
         self.duration = duration
         self.pad_mode = pad_mode
 
@@ -36,21 +39,24 @@ class ResizeSignal(Transform):
         return ai
 
 
-def _tfm_pad_signal(sig, width, pad_mode=AudioPadType.Zeros):  # noqa: F821
+def _tfm_pad_signal(sig, width, pad_mode=AudioPadType.Zeros):
     """Pad spectrogram to specified width, using specified pad mode"""
     c, x = sig.shape
-    pad_m = pad_mode.lower()
-    if pad_m in ["zeros", "zeros_after"]:
-        zeros_front = random.randint(0, width - x) if pad_m == "zeros" else 0
+    if pad_mode in [AudioPadType.Zeros, AudioPadType.Zeros_After]:
+        zeros_front = (
+            random.randint(0, width - x) if pad_mode == AudioPadType.Zeros else 0
+        )
         pad_front = torch.zeros((c, zeros_front))
         pad_back = torch.zeros((c, width - x - zeros_front))
         return torch.cat((pad_front, sig, pad_back), 1)
-    elif pad_m == "repeat":
+    elif pad_mode == AudioPadType.Repeat:
         repeats = width // x + 1
         return sig.repeat(1, repeats)[:, :width]
     else:
         raise ValueError(
-            f"pad_mode {pad_m} not currently supported, only 'zeros', 'zeros_after', or 'repeat'"
+            f"""pad_mode {pad_mode} not currently supported,
+            only AudioPadType.Zeros, AudioPadType.Zeros_After,
+            or AudioPadType.Repeat"""
         )
 
 
@@ -110,27 +116,28 @@ class SignalShifter(RandTransform):
         return shift_signal(sg, int(s), self.roll)
 
 
-mk_class(
-    "NoiseColor",
-    **{o: i - 2 for i, o in enumerate(["Violet", "Blue", "White", "Pink", "Brown"])},
-    doc="All possible colors of noise as attributes to get tab-completion and typo-proofing",
-)
+class NoiseColor(Enum):
+    Violet = -2
+    Blue = -1
+    White = 0
+    Pink = 1
+    Brown = 2
 
 
 class AddNoise(Transform):
     "Adds noise of specified color and level to the audio signal"
 
-    def __init__(self, noise_level=0.05, color=NoiseColor.White):  # noqa: F821
+    def __init__(self, noise_level=0.05, color=NoiseColor.White):
         self.noise_level = noise_level
         self.color = color
 
     def encodes(self, ai: AudioTensor) -> AudioTensor:
         # if it's white noise, implement our own for speed
-        if self.color == 0:
+        if self.color == NoiseColor.White:
             noise = torch.randn_like(ai.data)
         else:
             noise = torch.from_numpy(
-                cn.powerlaw_psd_gaussian(exponent=self.color, size=ai.nsamples)
+                cn.powerlaw_psd_gaussian(exponent=self.color.value, size=ai.nsamples)
             ).float()
         scaled_noise = noise * ai.data.abs().mean() * self.noise_level
         ai.data += scaled_noise

@@ -8,7 +8,7 @@ from fastai.imports import inspect, partial, plt
 from fastai.vision.data import get_grid
 from fastcore.dispatch import typedispatch
 from fastcore.transform import Transform
-from fastcore.utils import L, add_props, delegates, ifnone, store_attr
+from fastcore.utils import delegates, ifnone
 from librosa.display import specshow
 from torch import nn
 
@@ -35,7 +35,17 @@ class AudioSpectrogram(TensorImageBase):
         # so we subtract 0.5 to compensate, wont be exact
         return (self.hop_length * (self.shape[-1] - 0.5)) / self.sr
 
-    width, height, nchannels = add_props(lambda i, self: self.shape[-(i + 1)], n=3)
+    @property
+    def width(self):
+        return self.shape[-1]
+
+    @property
+    def height(self):
+        return self.shape[-2]
+
+    @property
+    def nchannels(self):
+        return self.shape[-3]
 
     def _all_show_args(self, show_y: bool = True):
         proper_kwargs = get_usable_kwargs(
@@ -121,7 +131,8 @@ class AudioToSpec(Transform):
     """
 
     def __init__(self, pipe, settings):
-        store_attr()
+        self.pipe = pipe
+        self.settings = settings
 
     @classmethod
     def from_cfg(cls, audio_cfg):
@@ -148,24 +159,24 @@ def SpectrogramTransformer(mel=True, to_db=True):
 
 def _get_transform_list(sg_type):
     """Builds a list of higher-order transforms with no arguments"""
-    transforms = L()
+    transforms = []
     if sg_type["mel"]:
-        transforms += _GenMelSpec
+        transforms.append(_GenMelSpec)
     else:
-        transforms += _GenSpec
+        transforms.append(_GenSpec)
     if sg_type["to_db"]:
-        transforms += _ToDB
+        transforms.append(_ToDB)
     return transforms
 
 
 def fill_pipeline(transform_list, sg_type, **kwargs):
     """Adds correct args to each transform"""
     kwargs = _override_bad_defaults(dict(kwargs))
-    function_list = L()
+    function_list = []
     settings = {}
     for f in transform_list:
         usable_kwargs = get_usable_kwargs(f, kwargs)
-        function_list += f(**usable_kwargs)
+        function_list.append(f(**usable_kwargs))
         settings.update(usable_kwargs)
     warn_unused(kwargs, settings)
     return AudioToSpec(nn.Sequential(*function_list), settings={**sg_type, **settings})

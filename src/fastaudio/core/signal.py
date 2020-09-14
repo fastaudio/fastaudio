@@ -1,3 +1,6 @@
+import random
+
+import torch
 import torchaudio
 from fastai.data.external import URLs
 from fastai.data.transforms import Transform, get_files
@@ -5,7 +8,7 @@ from fastai.imports import Path, mimetypes, plt, tarfile
 from fastai.torch_core import TensorBase
 from fastai.vision.data import get_grid
 from fastcore.dispatch import retain_type, typedispatch
-from fastcore.utils import add_props, delegates, ifnone, store_attr
+from fastcore.utils import delegates, ifnone
 from IPython.display import Audio, display
 from librosa.display import waveplot
 
@@ -76,7 +79,13 @@ class AudioTensor(TensorBase):
     def sr(self, val):
         self._meta["sr"] = val
 
-    nsamples, nchannels = add_props(lambda i, self: self.shape[-1 * (i + 1)])
+    @property
+    def nsamples(self):
+        return self.shape[-1]
+
+    @property
+    def nchannels(self):
+        return self.shape[-2]
 
     @property
     def duration(self):
@@ -94,6 +103,21 @@ class AudioTensor(TensorBase):
         if hear:
             self.hear()
         return show_audio_signal(self, ctx=ctx, **kwargs)
+
+    def apply_gain(self, gain):
+        self.data *= gain
+        return self
+
+    def cutout(self, cut_pct):
+        mask = torch.zeros(int(self.nsamples * cut_pct))
+        mask_start = random.randint(0, self.nsamples - len(mask))
+        self.data[:, mask_start : mask_start + len(mask)] = mask
+        return self
+
+    def lose_signal(self, loss_pct):
+        mask = (torch.rand_like(self.data[0]) > loss_pct).float()
+        self.data[..., :] *= mask
+        return self
 
 
 def _get_f(fn):
@@ -153,7 +177,7 @@ class OpenAudio(Transform):
     """
 
     def __init__(self, items):
-        store_attr()
+        self.items = items
 
     def encodes(self, i):
         o = self.items[i]

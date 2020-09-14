@@ -5,7 +5,6 @@ import torch
 from fastai.imports import np, random
 from fastai.vision.augment import RandTransform
 from fastcore.transform import Transform
-from fastcore.utils import patch
 
 from ..core.signal import AudioTensor
 from ..core.spectrogram import AudioSpectrogram
@@ -144,12 +143,6 @@ class AddNoise(Transform):
         return ai
 
 
-@patch
-def apply_gain(ai: AudioTensor, gain):
-    ai.data *= gain
-    return ai
-
-
 class ChangeVolume(RandTransform):
     "Changes the volume of the signal"
 
@@ -162,19 +155,7 @@ class ChangeVolume(RandTransform):
         self.gain = random.uniform(self.lower, self.upper)
 
     def encodes(self, ai: AudioTensor):
-        return apply_gain(ai, self.gain)
-
-
-@patch
-def cutout(ai: AudioTensor, cut_pct):
-    mask = torch.zeros(int(ai.nsamples * cut_pct))
-    mask_start = random.randint(0, ai.nsamples - len(mask))
-    ai.data[:, mask_start : mask_start + len(mask)] = mask
-    return ai
-
-
-# @patch
-# def cutout(sg:AudioSpectrogram, cut_pct):
+        return ai.apply_gain(self.gain)
 
 
 class SignalCutout(RandTransform):
@@ -189,14 +170,7 @@ class SignalCutout(RandTransform):
         self.cut_pct = random.uniform(0, self.max_cut_pct)
 
     def encodes(self, ai: AudioTensor):
-        return cutout(ai, self.cut_pct)
-
-
-@patch
-def lose_signal(ai: AudioTensor, loss_pct):
-    mask = (torch.rand_like(ai.data[0]) > loss_pct).float()
-    ai.data[..., :] *= mask
-    return ai
+        return ai.cutout(self.cut_pct)
 
 
 class SignalLoss(RandTransform):
@@ -211,7 +185,7 @@ class SignalLoss(RandTransform):
         self.loss_pct = random.uniform(0, self.max_loss_pct)
 
     def encodes(self, ai: AudioTensor):
-        return lose_signal(ai, self.loss_pct)
+        return ai.lose_signal(self.loss_pct)
 
 
 # downmixMono was removed from torchaudio, we now just take the mean across channels

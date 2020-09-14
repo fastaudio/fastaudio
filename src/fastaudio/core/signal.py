@@ -1,3 +1,6 @@
+import random
+
+import torch
 import torchaudio
 from fastai.data.external import URLs
 from fastai.data.transforms import Transform, get_files
@@ -94,6 +97,21 @@ class AudioTensor(TensorBase):
         if hear:
             self.hear()
         return show_audio_signal(self, ctx=ctx, **kwargs)
+
+    def apply_gain(self, gain):
+        self.data *= gain
+        return self
+
+    def cutout(self, cut_pct):
+        mask = torch.zeros(int(self.nsamples * cut_pct))
+        mask_start = random.randint(0, self.nsamples - len(mask))
+        self.data[:, mask_start : mask_start + len(mask)] = mask
+        return self
+
+    def lose_signal(self, loss_pct):
+        mask = (torch.rand_like(self.data[0]) > loss_pct).float()
+        self.data[..., :] *= mask
+        return self
 
 
 def _get_f(fn):

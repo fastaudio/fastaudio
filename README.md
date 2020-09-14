@@ -50,6 +50,8 @@ pre-commit install
 
 We are looking for contributors of all skill levels. If you don't have time to contribute, please at least reach out and give us some feedback on the library.
 
+Make sure that you have activated the environment that you used `pre-commit install` in so that pre-commit knows where to run the git hooks.
+
 ### How to contribute
 Create issues, write documentation, suggest/add features, submit PRs. We are open to anything.
 

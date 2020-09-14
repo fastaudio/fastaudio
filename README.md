@@ -63,5 +63,12 @@ information on PyScaffold see https://pyscaffold.org/.
 If you used this library in any research, please cite us.
 
 ```
- @misc{coultas blum_scart_bracco_2020, title={fastaudio/fastaudio}, url={https://github.com/fastaudio/fastaudio}, journal={GitHub}, author={Coultas Blum, Harry A and Scart, Lucas G. and Bracco, Robert}, year={2020}, month={Aug}} 
+@misc{coultas_blum_scart_bracco_2020,
+ title={Fastaudio},
+ url={https://github.com/fastaudio/fastaudio},
+ journal={GitHub},
+ author={Coultas Blum, Harry A and Scart, Lucas G. and Bracco, Robert},
+ year={2020},
+ month={Aug}
+}
 ```

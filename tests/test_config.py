@@ -1,13 +1,6 @@
 from fastai.data.all import untar_data
 
-from fastaudio.all import (
-    AudioConfig,
-    AudioToSpec,
-    OpenAudio,
-    Pipeline,
-    URLs,
-    tar_extract_at_filename
-)
+from fastaudio.all import AudioConfig, AudioToSpec, OpenAudio, Pipeline, URLs
 
 
 def test_basic_config():
@@ -21,8 +14,8 @@ def test_load_audio_with_basic_config():
     Grab a random file, test that the n_fft are passed successfully
     via config and stored in sg settings
     """
-    p = untar_data(URLs.SPEAKERS10, extract_func=tar_extract_at_filename)
-    f = p / "f0001_us_f0001_00001.wav"
+    p = untar_data(URLs.SAMPLE_SPEAKERS10)
+    f = p / "train/f0001_us_f0001_00001.wav"
     oa = OpenAudio([f])
     sg_cfg = AudioConfig.BasicSpectrogram(n_fft=2000, hop_length=155)
     a2sg = AudioToSpec.from_cfg(sg_cfg)
@@ -34,8 +27,8 @@ def test_load_audio_with_basic_config():
 def test_basic_pipeline():
     cfg = {"mel": False, "to_db": False, "hop_length": 128, "n_fft": 400}
 
-    p = untar_data(URLs.SPEAKERS10, extract_func=tar_extract_at_filename)
-    f = p / "f0001_us_f0001_00001.wav"
+    p = untar_data(URLs.SAMPLE_SPEAKERS10)
+    f = p / "train/f0001_us_f0001_00001.wav"
 
     oa = OpenAudio([f])
     a2s = AudioToSpec.from_cfg(cfg)

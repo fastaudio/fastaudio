@@ -8,7 +8,7 @@ from fastai.imports import Path, mimetypes, plt, tarfile
 from fastai.torch_core import TensorBase
 from fastai.vision.data import get_grid
 from fastcore.dispatch import retain_type, typedispatch
-from fastcore.utils import add_props, delegates, ifnone
+from fastcore.utils import delegates, ifnone
 from IPython.display import Audio, display
 from librosa.display import waveplot
 
@@ -79,7 +79,13 @@ class AudioTensor(TensorBase):
     def sr(self, val):
         self._meta["sr"] = val
 
-    nsamples, nchannels = add_props(lambda i, self: self.shape[-1 * (i + 1)])
+    @property
+    def nsamples(self):
+        return self.shape[-1]
+
+    @property
+    def nchannels(self):
+        return self.shape[-2]
 
     @property
     def duration(self):

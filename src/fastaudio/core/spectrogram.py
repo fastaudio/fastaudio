@@ -8,7 +8,7 @@ from fastai.imports import inspect, partial, plt
 from fastai.vision.data import get_grid
 from fastcore.dispatch import typedispatch
 from fastcore.transform import Transform
-from fastcore.utils import add_props, delegates, ifnone
+from fastcore.utils import delegates, ifnone
 from librosa.display import specshow
 from torch import nn
 
@@ -35,7 +35,17 @@ class AudioSpectrogram(TensorImageBase):
         # so we subtract 0.5 to compensate, wont be exact
         return (self.hop_length * (self.shape[-1] - 0.5)) / self.sr
 
-    width, height, nchannels = add_props(lambda i, self: self.shape[-(i + 1)], n=3)
+    @property
+    def width(self):
+        return self.shape[-1]
+
+    @property
+    def height(self):
+        return self.shape[-2]
+
+    @property
+    def nchannels(self):
+        return self.shape[-3]
 
     def _all_show_args(self, show_y: bool = True):
         proper_kwargs = get_usable_kwargs(

@@ -171,6 +171,10 @@ def test_shift():
     )
 
 
+def test_shift_with_zero():
+    _test_eq(_shift(torch.arange(1, 10), 0), torch.arange(1, 10))
+
+
 def test_rolling(audio):
     shift_and_roll = SignalShifter(p=1, max_pct=0.5, roll=True)
     inp, out = apply_transform(shift_and_roll, audio)

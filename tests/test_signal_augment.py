@@ -8,9 +8,11 @@ from fastai.data.all import test_eq as _test_eq
 from fastai.data.all import test_ne as _test_ne
 
 from fastaudio.all import (
+    AddNoise,
     AudioPadType,
     AudioTensor,
     DownmixMono,
+    NoiseColor,
     RemoveSilence,
     RemoveType,
     Resample,
@@ -184,3 +186,20 @@ def test_down_mix_mono(audio):
     downmixer = DownmixMono()
     inp, out = apply_transform(downmixer, audio)
     _test_eq(inp.data, out.data)
+
+
+def test_noise_fail_bad_color(audio):
+    with pytest.raises(ValueError):
+        AddNoise(audio, color=5)
+
+
+def test_noise_white(audio):
+    addnoise = AddNoise(color=NoiseColor.White)
+    inp, out = apply_transform(addnoise, audio)
+    _test_ne(inp.data, out.data)
+
+
+def test_noise_non_white(audio):
+    addnoise = AddNoise(color=NoiseColor.Pink)
+    inp, out = apply_transform(addnoise, audio)
+    _test_ne(inp.data, out.data)

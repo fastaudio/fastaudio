@@ -1,4 +1,13 @@
-from fastaudio.all import AudioConfig, AudioToSpec, OpenAudio, Pipeline
+import os
+
+from fastaudio.all import (
+    AudioConfig,
+    AudioToSpec,
+    OpenAudio,
+    Pipeline,
+    audio_item_tfms,
+    preprocess_audio_folder
+)
 from fastaudio.util import test_audio_tensor
 
 
@@ -29,3 +38,14 @@ def test_basic_pipeline():
     a2s = AudioToSpec.from_cfg(cfg)
     db_mel_pipe = Pipeline([oa, a2s])
     assert db_mel_pipe(0).hop_length == cfg["hop_length"]
+
+
+def test_basic_pre_audio():
+    audio_item_tfms(8000, True, 4000)
+
+
+def test_pre_process_audio():
+    d = "data_test"
+    os.mkdir(d)
+    test_audio_tensor().save(d + "/test.wav")
+    preprocess_audio_folder(d)

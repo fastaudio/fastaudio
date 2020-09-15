@@ -80,3 +80,8 @@ def test_add_tensors():
 def test_check_nchannels():
     audio_tensor = AudioTensor(torch.ones(1, 3, 10), sr=120)
     assert audio_tensor.nchannels == 3
+
+
+def test_indexing_audiotensor():
+    audio_tensor = test_audio_tensor()
+    assert audio_tensor.data[:, :3000].shape[1] == 3000

@@ -140,7 +140,6 @@ def test_resize_signal_repeat(audio):
     for i in range(repeat):
         s = int(i * inp.nsamples)
         e = int(s + inp.nsamples)
-        print(out[:, s:e].shape, inp.shape)
         _test_eq(out[:, s:e], inp)
 
 

@@ -1,13 +1,10 @@
 import random
 
-import pytest
-
 import torch
 from fastai.data.all import test_close as _test_close
 from fastai.data.all import test_eq as _test_eq
 from fastai.data.all import test_fail as _test_fail
 from fastai.data.all import test_ne as _test_ne
-from fastai.data.all import untar_data
 
 from fastaudio.all import (
     AudioConfig,
@@ -20,20 +17,9 @@ from fastaudio.all import (
     Pipeline,
     ResizeSignal,
     SpectrogramTransformer,
-    TfmResize,
-    URLs
+    TfmResize
 )
 from fastaudio.util import apply_transform, test_audio_tensor
-
-
-@pytest.fixture(scope="session")
-def ex_files():
-    p = untar_data(URLs.SAMPLE_SPEAKERS10)
-    return (p / "train").ls()
-
-
-def test_path(ex_files):
-    assert len(ex_files) > 0
 
 
 def test_crop_time():
@@ -46,11 +32,14 @@ def test_crop_time():
         _test_close(out.width, int((i / inp.duration) * inp.width), eps=1.01)
 
 
-def test_crop_time_with_pipeline(ex_files):
+def test_crop_time_with_pipeline():
     """
     AudioToSpec->CropTime and ResizeSignal->AudioToSpec
     will result in same size images
     """
+    afn = "./test.wav"
+    test_audio_tensor().save(afn)
+    ex_files = [afn] * 4
     oa = OpenAudio(ex_files)
     crop_dur = random.randint(1000, 5000)
     DBMelSpec = SpectrogramTransformer(mel=True, to_db=True)

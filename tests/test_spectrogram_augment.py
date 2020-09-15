@@ -17,6 +17,7 @@ from fastaudio.all import (
     OpenAudio,
     Pipeline,
     ResizeSignal,
+    SignalShifter,
     SpectrogramTransformer,
     TfmResize
 )
@@ -135,3 +136,11 @@ def test_delta_channels():
     _test_eq(out.nchannels, inp.nchannels * 3)
     _test_eq(out.shape[1:], inp.shape[1:])
     _test_ne(out[0], out[1])
+
+
+def test_signal_shift_on_sg():
+    audio = test_audio_tensor()
+    a2s = AudioToSpec.from_cfg(AudioConfig.BasicSpectrogram())
+    shifter = SignalShifter(1)
+    inp, out = apply_transform(shifter, a2s(audio))
+    _test_ne(inp, out)

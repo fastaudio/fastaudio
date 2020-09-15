@@ -82,33 +82,21 @@ def test_upsample(audio):
         _test_close(num_samples, abs(audio.nsamples // (audio.sr / random_sr)), eps=1.1)
 
 
-def test_cropping():
+def test_resizing_signal():
     "Can use the ResizeSignal Transform"
     audio = test_audio_tensor(seconds=10, sr=1000)
+    mcaudio = test_audio_tensor(channels=2)
 
-    inp, out1000 = apply_transform(ResizeSignal(1000), audio.clone())
-    inp, out2000 = apply_transform(ResizeSignal(2000), audio.clone())
-    inp, out5000 = apply_transform(ResizeSignal(5000), audio.clone())
+    for i in [1, 2, 5]:
+        inp, out = apply_transform(ResizeSignal(i * 1000), audio)
+        _test_eq(out.duration, i)
+        _test_eq(out.nsamples, out.duration * inp.sr)
 
-    _test_eq(out1000.duration, 1)
-    _test_eq(out2000.duration, 2)
-    _test_eq(out5000.duration, 5)
-
-    _test_eq(out1000.nsamples, out1000.duration * inp.sr)
-    _test_eq(out2000.nsamples, out2000.duration * inp.sr)
-    _test_eq(out5000.nsamples, out5000.duration * inp.sr)
-
-    # Multi Channel Cropping
-    inp, mc1000 = apply_transform(ResizeSignal(1000), audio.clone())
-    inp, mc2000 = apply_transform(ResizeSignal(2000), audio.clone())
-    inp, mc5000 = apply_transform(ResizeSignal(5000), audio.clone())
-
-    _test_eq(mc1000.duration, 1)
-    _test_eq(mc2000.duration, 2)
-    _test_eq(mc5000.duration, 5)
+        inp, out = apply_transform(ResizeSignal(i * 1000), mcaudio)
+        _test_eq(out.duration, i)
 
 
-def test_padding_after(audio):
+def test_padding_after_resize(audio):
     "Padding is added to the end  but not the beginning"
     new_duration = (audio.duration + 1) * 1000
     cropsig_pad_after = ResizeSignal(new_duration, pad_mode=AudioPadType.Zeros_After)
@@ -120,12 +108,19 @@ def test_padding_after(audio):
     _test_ne(out[:, 0:10], out[:, -10:])
 
 
-def test_padding_both_side(audio):
+def test_padding_both_side_resize(audio):
     "Make sure they are padding on both sides"
     new_duration = (audio.duration + 1) * 1000
     cropsig_pad_after = ResizeSignal(new_duration)
     inp, out = apply_transform(cropsig_pad_after, audio)
     _test_eq(out[:, 0:2], out[:, -2:])
+
+
+def test_resize_same_duration(audio):
+    "Asking to resize to the duration should return the audio back"
+    resize = ResizeSignal(audio.duration * 1000)
+    inp, out = apply_transform(resize, audio)
+    _test_eq(inp, out)
 
 
 def test_resize_signal_repeat(audio):

@@ -53,3 +53,4 @@ MANIFEST
 
 # Notebook
 **/*.ipynb
+.vim

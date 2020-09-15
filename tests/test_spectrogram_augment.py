@@ -144,7 +144,7 @@ def test_delta_channels():
 def test_signal_shift_on_sg():
     audio = test_audio_tensor()
     a2s = AudioToSpec.from_cfg(AudioConfig.BasicSpectrogram())
-    shifter = SignalShifter(1)
+    shifter = SignalShifter(1, 1)
     inp, out = apply_transform(shifter, a2s(audio))
     _test_ne(inp, out)
 

@@ -92,3 +92,10 @@ def test_mfcc_transform():
     a2s = AudioToMFCC.from_cfg(AudioConfig.BasicMFCC())
     sg = a2s(audio)
     assert len(sg.shape) == 3
+
+
+def test_show_spectrogram():
+    audio = test_audio_tensor()
+    a2s = AudioToMFCC.from_cfg(AudioConfig.BasicMFCC())
+    sg = a2s(audio)
+    sg.show()

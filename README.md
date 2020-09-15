@@ -46,6 +46,15 @@ pip install -e .[dev,testing]
 pre-commit install
 ```
 
+# Testing
+To run the tests and verify everythig is working, you'll need to create an environment like above:
+
+```
+git clone git@github.com:fastaudio/fastaudio
+pip install .[dev,testing]
+pytest
+```
+
 # Contributing to the library
 
 We are looking for contributors of all skill levels. If you don't have time to contribute, please at least reach out and give us some feedback on the library.

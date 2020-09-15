@@ -5,7 +5,6 @@ import pytest
 import torch
 from fastai.data.all import test_close as _test_close
 from fastai.data.all import test_eq as _test_eq
-from fastai.data.all import test_fail as _test_fail
 from fastai.data.all import test_ne as _test_ne
 
 from fastaudio.all import (
@@ -139,7 +138,8 @@ def test_resize_signal_repeat(audio):
 
 
 def test_fail_invalid_pad_mode():
-    _test_fail(ResizeSignal(12000, pad_mode="tenchify"))
+    with pytest.raises(ValueError):
+        ResizeSignal(12000, pad_mode="tenchify")
 
 
 def test_shift():
@@ -169,6 +169,12 @@ def test_shift():
 
 def test_rolling(audio):
     shift_and_roll = SignalShifter(p=1, max_pct=0.5, roll=True)
+    inp, out = apply_transform(shift_and_roll, audio)
+    _test_eq(inp.data.shape, out.data.shape)
+
+
+def test_no_rolling(audio):
+    shift_and_roll = SignalShifter(p=1, max_pct=0.5, roll=False)
     inp, out = apply_transform(shift_and_roll, audio)
     _test_eq(inp.data.shape, out.data.shape)
 

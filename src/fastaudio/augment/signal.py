@@ -23,6 +23,16 @@ class ResizeSignal(Transform):
     def __init__(self, duration, pad_mode=AudioPadType.Zeros):
         self.duration = duration
         self.pad_mode = pad_mode
+        if pad_mode not in [
+            AudioPadType.Zeros,
+            AudioPadType.Zeros_After,
+            AudioPadType.Repeat,
+        ]:
+            raise ValueError(
+                f"""pad_mode {pad_mode} not currently supported,
+                only AudioPadType.Zeros, AudioPadType.Zeros_After,
+                or AudioPadType.Repeat"""
+            )
 
     def encodes(self, ai: AudioTensor) -> AudioTensor:
         sig = ai.data

@@ -33,9 +33,7 @@ def _merge_splits(splits, pad):
 class RemoveSilence(Transform):
     """Split signal at points of silence greater than 2*pad_ms """
 
-    def __init__(
-        self, remove_type=RemoveType.Trim, threshold=20, pad_ms=20
-    ):
+    def __init__(self, remove_type=RemoveType.Trim, threshold=20, pad_ms=20):
         self.remove_type = remove_type
         self.threshold = threshold
         self.pad_ms = pad_ms

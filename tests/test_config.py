@@ -41,11 +41,13 @@ def test_basic_pipeline():
 
 
 def test_basic_pre_audio():
-    audio_item_tfms(8000, True, 4000)
+    tfms = audio_item_tfms(8000, True, 4000)
+    assert len(tfms) == 3
 
 
 def test_pre_process_audio():
     d = "data_test"
-    os.mkdir(d)
+    if not os.path.isdir(d):
+        os.mkdir(d)
     test_audio_tensor().save(d + "/test.wav")
     preprocess_audio_folder(d)

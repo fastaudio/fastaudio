@@ -12,13 +12,13 @@ from fastaudio.all import (
     AudioPadType,
     AudioTensor,
     ChangeVolume,
-    Cutout,
     DownmixMono,
     NoiseColor,
     RemoveSilence,
     RemoveType,
     Resample,
     ResizeSignal,
+    SignalCutout,
     SignalLoss,
     SignalShifter
 )
@@ -236,6 +236,6 @@ def test_signal_loss(audio):
 
 
 def test_signal_cutout(audio):
-    cutout = Cutout(1)
+    cutout = SignalCutout(1)
     inp, out = apply_transform(cutout, audio)
     _test_ne(inp.data, out.data)

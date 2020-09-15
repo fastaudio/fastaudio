@@ -1,5 +1,7 @@
 import random
 
+import pytest
+
 import torch
 from fastai.data.all import test_close as _test_close
 from fastai.data.all import test_eq as _test_eq
@@ -17,6 +19,7 @@ from fastaudio.all import (
     OpenAudio,
     Pipeline,
     ResizeSignal,
+    SGRoll,
     SignalShifter,
     SpectrogramTransformer,
     TfmResize
@@ -144,3 +147,16 @@ def test_signal_shift_on_sg():
     shifter = SignalShifter(1)
     inp, out = apply_transform(shifter, a2s(audio))
     _test_ne(inp, out)
+
+
+def test_sg_roll():
+    roll = SGRoll()
+    audio = test_audio_tensor()
+    a2s = AudioToSpec.from_cfg(AudioConfig.BasicSpectrogram())
+    inp, out = apply_transform(roll, a2s(audio))
+    _test_ne(inp, out)
+
+
+def test_sg_roll_fails_direction():
+    with pytest.raises(ValueError):
+        SGRoll(direction=2)

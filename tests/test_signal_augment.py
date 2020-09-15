@@ -175,6 +175,17 @@ def test_shift_with_zero():
     _test_eq(_shift(torch.arange(1, 10), 0), torch.arange(1, 10))
 
 
+def test_shift_invalid_direction(audio):
+    with pytest.raises(ValueError):
+        SignalShifter(p=1, direction=-2)
+
+
+def test_shift_max_time(audio):
+    shift = SignalShifter(max_time=1)
+    inp, out = apply_transform(shift, audio)
+    _test_eq(inp.data.shape, out.data.shape)
+
+
 def test_rolling(audio):
     shift_and_roll = SignalShifter(p=1, max_pct=0.5, roll=True)
     inp, out = apply_transform(shift_and_roll, audio)

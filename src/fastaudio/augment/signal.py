@@ -61,12 +61,6 @@ def _tfm_pad_signal(sig, width, pad_mode=AudioPadType.Zeros):
     elif pad_mode == AudioPadType.Repeat:
         repeats = width // x + 1
         return sig.repeat(1, repeats)[:, :width]
-    else:
-        raise ValueError(
-            f"""pad_mode {pad_mode} not currently supported,
-            only AudioPadType.Zeros, AudioPadType.Zeros_After,
-            or AudioPadType.Repeat"""
-        )
 
 
 def _shift(sig, s):

@@ -11,6 +11,7 @@ from fastaudio.all import (
     AudioPadType,
     AudioToSpec,
     CropTime,
+    Delta,
     MaskFreq,
     MaskTime,
     OpenAudio,
@@ -121,3 +122,16 @@ def test_resize_int():
     sg = a2s(audio)
     inp, out = apply_transform(resize_int, sg)
     _test_eq(out.shape[1:], torch.Size([size, size]))
+
+
+def test_delta_channels():
+    " nchannels for a spectrogram is how many channels its original audio had "
+    delta = Delta()
+    audio = test_audio_tensor(channels=1)
+    a2s = AudioToSpec.from_cfg(AudioConfig.Voice())
+    sg = a2s(audio)
+    inp, out = apply_transform(delta, sg)
+
+    _test_eq(out.nchannels, inp.nchannels * 3)
+    _test_eq(out.shape[1:], inp.shape[1:])
+    _test_ne(out[0], out[1])

@@ -11,12 +11,14 @@ from fastaudio.all import (
     AddNoise,
     AudioPadType,
     AudioTensor,
+    ChangeVolume,
     DownmixMono,
     NoiseColor,
     RemoveSilence,
     RemoveType,
     Resample,
     ResizeSignal,
+    SignalLoss,
     SignalShifter
 )
 from fastaudio.augment.signal import _shift
@@ -202,4 +204,16 @@ def test_noise_white(audio):
 def test_noise_non_white(audio):
     addnoise = AddNoise(color=NoiseColor.Pink)
     inp, out = apply_transform(addnoise, audio)
+    _test_ne(inp.data, out.data)
+
+
+def test_change_volume(audio):
+    changevol = ChangeVolume(1)
+    inp, out = apply_transform(changevol, audio)
+    _test_ne(inp.data, out.data)
+
+
+def test_signal_loss(audio):
+    signalloss = SignalLoss(1)
+    inp, out = apply_transform(signalloss, audio)
     _test_ne(inp.data, out.data)

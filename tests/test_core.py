@@ -5,7 +5,7 @@ import torch
 from fastai.data.all import test_close as _close
 from torchaudio.transforms import MelSpectrogram
 
-from fastaudio.all import AudioTensor, SpectrogramTransformer
+from fastaudio.all import AudioConfig, AudioTensor, AudioToMFCC, SpectrogramTransformer
 from fastaudio.util import test_audio_tensor
 
 
@@ -85,3 +85,10 @@ def test_check_nchannels():
 def test_indexing_audiotensor():
     audio_tensor = test_audio_tensor()
     assert audio_tensor.data[:, :3000].shape[1] == 3000
+
+
+def test_mfcc_transform():
+    audio = test_audio_tensor()
+    a2s = AudioToMFCC.from_cfg(AudioConfig.BasicMFCC())
+    sg = a2s(audio)
+    assert len(sg.shape) == 3

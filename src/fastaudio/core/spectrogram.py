@@ -8,7 +8,8 @@ from fastai.imports import inspect, partial, plt
 from fastai.vision.data import get_grid
 from fastcore.dispatch import typedispatch
 from fastcore.transform import Transform
-from fastcore.utils import L, add_props, delegates, ifnone
+from fastai.basics import delegates
+from fastcore.utils import L, add_props, ifnone
 from librosa.display import specshow
 from torch import nn
 

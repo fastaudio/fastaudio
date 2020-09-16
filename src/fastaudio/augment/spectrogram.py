@@ -11,15 +11,6 @@ from ..core.spectrogram import AudioSpectrogram, AudioTensor
 from .signal import AudioPadType
 
 
-class InvalidEncodingData(Exception):
-    pass
-
-
-invalid_exception = InvalidEncodingData(
-    "You are trying to use a spectrogram transform on an audio tensor, check your pipeline"
-)
-
-
 class SpectrogramTransform(Transform):
     "Helps prevent us trying to apply to Audio Tensors"
 

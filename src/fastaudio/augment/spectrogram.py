@@ -1,3 +1,5 @@
+import warnings
+
 import librosa
 import torch
 from fastai.imports import partial, random
@@ -22,7 +24,8 @@ class SpectrogramTransform(Transform):
     "Helps prevent us trying to apply to Audio Tensors"
 
     def encodes(self, audio: AudioTensor) -> AudioTensor:
-        raise InvalidEncodingData
+        warnings.warn(f"You are trying to apply a {type(self).__name__} to an AudioTensor {audio.shape}")
+        return audio
 
 
 class CropTime(SpectrogramTransform):

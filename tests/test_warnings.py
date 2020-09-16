@@ -3,7 +3,6 @@ import pytest
 from fastaudio.augment.spectrogram import (
     CropTime,
     Delta,
-    InvalidEncodingData,
     MaskFreq,
     MaskTime,
     SGRoll,
@@ -14,7 +13,7 @@ from fastaudio.util import test_audio_tensor
 
 def invoke_class(cls, **args):
     audio = test_audio_tensor()
-    with pytest.raises(InvalidEncodingData):
+    with pytest.warns(Warning):
         cls(**args)(audio)
 
 

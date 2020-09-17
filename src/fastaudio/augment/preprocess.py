@@ -44,7 +44,10 @@ class RemoveSilence(Transform):
         padding = int(self.pad_ms / 1000 * ai.sr)
         if padding > ai.nsamples:
             return ai
-        splits = split(ai.numpy(), top_db=self.threshold, hop_length=padding)
+        if ai.shape[0] < 2:
+            splits = split(ai[0].numpy(), top_db=self.threshold, hop_length=padding)
+        else:
+            splits = split(ai.numpy(), top_db=self.threshold, hop_length=padding)
         if self.remove_type == RemoveType.Split:
             sig = [
                 ai[:, (max(a - padding, 0)) : (min(b + padding, ai.nsamples))]

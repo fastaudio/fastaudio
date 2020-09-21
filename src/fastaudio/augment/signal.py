@@ -23,6 +23,16 @@ class ResizeSignal(Transform):
     def __init__(self, duration, pad_mode=AudioPadType.Zeros):
         self.duration = duration
         self.pad_mode = pad_mode
+        if pad_mode not in [
+            AudioPadType.Zeros,
+            AudioPadType.Zeros_After,
+            AudioPadType.Repeat,
+        ]:
+            raise ValueError(
+                f"""pad_mode {pad_mode} not currently supported,
+                only AudioPadType.Zeros, AudioPadType.Zeros_After,
+                or AudioPadType.Repeat"""
+            )
 
     def encodes(self, ai: AudioTensor) -> AudioTensor:
         sig = ai.data
@@ -51,12 +61,6 @@ def _tfm_pad_signal(sig, width, pad_mode=AudioPadType.Zeros):
     elif pad_mode == AudioPadType.Repeat:
         repeats = width // x + 1
         return sig.repeat(1, repeats)[:, :width]
-    else:
-        raise ValueError(
-            f"""pad_mode {pad_mode} not currently supported,
-            only AudioPadType.Zeros, AudioPadType.Zeros_After,
-            or AudioPadType.Repeat"""
-        )
 
 
 def _shift(sig, s):
@@ -115,7 +119,7 @@ class SignalShifter(RandTransform):
         return shift_signal(sg, int(s), self.roll)
 
 
-class NoiseColor(Enum):
+class NoiseColor:
     Violet = -2
     Blue = -1
     White = 0
@@ -129,6 +133,8 @@ class AddNoise(Transform):
     def __init__(self, noise_level=0.05, color=NoiseColor.White):
         self.noise_level = noise_level
         self.color = color
+        if color not in [*range(-2, 3)]:
+            raise ValueError(f"color {color} is not valid")
 
     def encodes(self, ai: AudioTensor) -> AudioTensor:
         # if it's white noise, implement our own for speed
@@ -136,7 +142,7 @@ class AddNoise(Transform):
             noise = torch.randn_like(ai.data)
         else:
             noise = torch.from_numpy(
-                cn.powerlaw_psd_gaussian(exponent=self.color.value, size=ai.nsamples)
+                cn.powerlaw_psd_gaussian(exponent=self.color, size=ai.nsamples)
             ).float()
         scaled_noise = noise * ai.data.abs().mean() * self.noise_level
         ai.data += scaled_noise

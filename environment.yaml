@@ -10,8 +10,8 @@ dependencies:
   - pytorch>=1.6
   - torchaudio>=0.6
   - cudatoolkit=10.1
-  - librosa=0.7.0
-  - numba=0.48.0
+  - librosa=0.8
+  - fastcore==1.0.8
   - pip>=20.2
   - IPython>=7.16
   - pip:

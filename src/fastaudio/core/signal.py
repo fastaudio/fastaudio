@@ -1,4 +1,5 @@
 import random
+from os import path
 
 import torch
 import torchaudio
@@ -118,6 +119,13 @@ class AudioTensor(TensorBase):
         mask = (torch.rand_like(self.data[0]) > loss_pct).float()
         self.data[..., :] *= mask
         return self
+
+    def save(self, fn: Path, overwrite=True):
+        "Save the audio into the specfied path"
+        fn = path.expanduser(fn)
+        if not overwrite and path.exists(fn):
+            raise Exception("File already exists")
+        torchaudio.save(fn, self.data, self.sr)
 
 
 def _get_f(fn):

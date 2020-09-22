@@ -1,6 +1,14 @@
-from fastai.data.all import untar_data
+import os
 
-from fastaudio.all import AudioConfig, AudioToSpec, OpenAudio, Pipeline, URLs
+from fastaudio.all import (
+    AudioConfig,
+    AudioToSpec,
+    OpenAudio,
+    Pipeline,
+    audio_item_tfms,
+    preprocess_audio_folder
+)
+from fastaudio.util import test_audio_tensor
 
 
 def test_basic_config():
@@ -14,24 +22,32 @@ def test_load_audio_with_basic_config():
     Grab a random file, test that the n_fft are passed successfully
     via config and stored in sg settings
     """
-    p = untar_data(URLs.SAMPLE_SPEAKERS10)
-    f = p / "train/f0001_us_f0001_00001.wav"
-    oa = OpenAudio([f])
     sg_cfg = AudioConfig.BasicSpectrogram(n_fft=2000, hop_length=155)
     a2sg = AudioToSpec.from_cfg(sg_cfg)
-    sg = a2sg(oa(0))
+    audio = test_audio_tensor()
+    sg = a2sg(audio)
     assert sg.n_fft == sg_cfg.n_fft
-    assert sg.width == int(oa(0).nsamples / sg_cfg.hop_length) + 1
+    assert sg.width == int(audio.nsamples / sg_cfg.hop_length) + 1
 
 
 def test_basic_pipeline():
     cfg = {"mel": False, "to_db": False, "hop_length": 128, "n_fft": 400}
-
-    p = untar_data(URLs.SAMPLE_SPEAKERS10)
-    f = p / "train/f0001_us_f0001_00001.wav"
-
+    test_audio_tensor().save("./test.wav")
+    f = "./test.wav"
     oa = OpenAudio([f])
     a2s = AudioToSpec.from_cfg(cfg)
     db_mel_pipe = Pipeline([oa, a2s])
-
     assert db_mel_pipe(0).hop_length == cfg["hop_length"]
+
+
+def test_basic_pre_audio():
+    tfms = audio_item_tfms(8000, True, 4000)
+    assert len(tfms) == 3
+
+
+def test_pre_process_audio():
+    d = "data_test"
+    if not os.path.isdir(d):
+        os.mkdir(d)
+    test_audio_tensor().save(d + "/test.wav")
+    preprocess_audio_folder(d)

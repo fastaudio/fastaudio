@@ -5,17 +5,21 @@ import pytest
 import torch
 from fastai.data.all import test_close as _test_close
 from fastai.data.all import test_eq as _test_eq
-from fastai.data.all import test_fail as _test_fail
 from fastai.data.all import test_ne as _test_ne
 
 from fastaudio.all import (
+    AddNoise,
     AudioPadType,
     AudioTensor,
+    ChangeVolume,
     DownmixMono,
+    NoiseColor,
     RemoveSilence,
     RemoveType,
     Resample,
     ResizeSignal,
+    SignalCutout,
+    SignalLoss,
     SignalShifter
 )
 from fastaudio.augment.signal import _shift
@@ -82,33 +86,21 @@ def test_upsample(audio):
         _test_close(num_samples, abs(audio.nsamples // (audio.sr / random_sr)), eps=1.1)
 
 
-def test_cropping():
+def test_resizing_signal():
     "Can use the ResizeSignal Transform"
     audio = test_audio_tensor(seconds=10, sr=1000)
+    mcaudio = test_audio_tensor(channels=2)
 
-    inp, out1000 = apply_transform(ResizeSignal(1000), audio.clone())
-    inp, out2000 = apply_transform(ResizeSignal(2000), audio.clone())
-    inp, out5000 = apply_transform(ResizeSignal(5000), audio.clone())
+    for i in [1, 2, 5]:
+        inp, out = apply_transform(ResizeSignal(i * 1000), audio)
+        _test_eq(out.duration, i)
+        _test_eq(out.nsamples, out.duration * inp.sr)
 
-    _test_eq(out1000.duration, 1)
-    _test_eq(out2000.duration, 2)
-    _test_eq(out5000.duration, 5)
-
-    _test_eq(out1000.nsamples, out1000.duration * inp.sr)
-    _test_eq(out2000.nsamples, out2000.duration * inp.sr)
-    _test_eq(out5000.nsamples, out5000.duration * inp.sr)
-
-    # Multi Channel Cropping
-    inp, mc1000 = apply_transform(ResizeSignal(1000), audio.clone())
-    inp, mc2000 = apply_transform(ResizeSignal(2000), audio.clone())
-    inp, mc5000 = apply_transform(ResizeSignal(5000), audio.clone())
-
-    _test_eq(mc1000.duration, 1)
-    _test_eq(mc2000.duration, 2)
-    _test_eq(mc5000.duration, 5)
+        inp, out = apply_transform(ResizeSignal(i * 1000), mcaudio)
+        _test_eq(out.duration, i)
 
 
-def test_padding_after(audio):
+def test_padding_after_resize(audio):
     "Padding is added to the end  but not the beginning"
     new_duration = (audio.duration + 1) * 1000
     cropsig_pad_after = ResizeSignal(new_duration, pad_mode=AudioPadType.Zeros_After)
@@ -120,12 +112,19 @@ def test_padding_after(audio):
     _test_ne(out[:, 0:10], out[:, -10:])
 
 
-def test_padding_both_side(audio):
+def test_padding_both_side_resize(audio):
     "Make sure they are padding on both sides"
     new_duration = (audio.duration + 1) * 1000
     cropsig_pad_after = ResizeSignal(new_duration)
     inp, out = apply_transform(cropsig_pad_after, audio)
     _test_eq(out[:, 0:2], out[:, -2:])
+
+
+def test_resize_same_duration(audio):
+    "Asking to resize to the duration should return the audio back"
+    resize = ResizeSignal(audio.duration * 1000)
+    inp, out = apply_transform(resize, audio)
+    _test_eq(inp, out)
 
 
 def test_resize_signal_repeat(audio):
@@ -140,12 +139,12 @@ def test_resize_signal_repeat(audio):
     for i in range(repeat):
         s = int(i * inp.nsamples)
         e = int(s + inp.nsamples)
-        print(out[:, s:e].shape, inp.shape)
         _test_eq(out[:, s:e], inp)
 
 
 def test_fail_invalid_pad_mode():
-    _test_fail(ResizeSignal(12000, pad_mode="tenchify"))
+    with pytest.raises(ValueError):
+        ResizeSignal(12000, pad_mode="tenchify")
 
 
 def test_shift():
@@ -173,8 +172,29 @@ def test_shift():
     )
 
 
+def test_shift_with_zero():
+    _test_eq(_shift(torch.arange(1, 10), 0), torch.arange(1, 10))
+
+
+def test_shift_invalid_direction(audio):
+    with pytest.raises(ValueError):
+        SignalShifter(p=1, direction=-2)
+
+
+def test_shift_max_time(audio):
+    shift = SignalShifter(max_time=1)
+    inp, out = apply_transform(shift, audio)
+    _test_eq(inp.data.shape, out.data.shape)
+
+
 def test_rolling(audio):
     shift_and_roll = SignalShifter(p=1, max_pct=0.5, roll=True)
+    inp, out = apply_transform(shift_and_roll, audio)
+    _test_eq(inp.data.shape, out.data.shape)
+
+
+def test_no_rolling(audio):
+    shift_and_roll = SignalShifter(p=1, max_pct=0.5, roll=False)
     inp, out = apply_transform(shift_and_roll, audio)
     _test_eq(inp.data.shape, out.data.shape)
 
@@ -184,3 +204,38 @@ def test_down_mix_mono(audio):
     downmixer = DownmixMono()
     inp, out = apply_transform(downmixer, audio)
     _test_eq(inp.data, out.data)
+
+
+def test_noise_fail_bad_color(audio):
+    with pytest.raises(ValueError):
+        AddNoise(audio, color=5)
+
+
+def test_noise_white(audio):
+    addnoise = AddNoise(color=NoiseColor.White)
+    inp, out = apply_transform(addnoise, audio)
+    _test_ne(inp.data, out.data)
+
+
+def test_noise_non_white(audio):
+    addnoise = AddNoise(color=NoiseColor.Pink)
+    inp, out = apply_transform(addnoise, audio)
+    _test_ne(inp.data, out.data)
+
+
+def test_change_volume(audio):
+    changevol = ChangeVolume(1)
+    inp, out = apply_transform(changevol, audio)
+    _test_ne(inp.data, out.data)
+
+
+def test_signal_loss(audio):
+    signalloss = SignalLoss(1)
+    inp, out = apply_transform(signalloss, audio)
+    _test_ne(inp.data, out.data)
+
+
+def test_signal_cutout(audio):
+    cutout = SignalCutout(1)
+    inp, out = apply_transform(cutout, audio)
+    _test_ne(inp.data, out.data)

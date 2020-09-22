@@ -7,33 +7,24 @@ from fastai.data.all import test_close as _test_close
 from fastai.data.all import test_eq as _test_eq
 from fastai.data.all import test_fail as _test_fail
 from fastai.data.all import test_ne as _test_ne
-from fastai.data.all import untar_data
 
 from fastaudio.all import (
     AudioConfig,
     AudioPadType,
     AudioToSpec,
     CropTime,
+    Delta,
     MaskFreq,
     MaskTime,
     OpenAudio,
     Pipeline,
     ResizeSignal,
+    SGRoll,
+    SignalShifter,
     SpectrogramTransformer,
-    TfmResize,
-    URLs
+    TfmResize
 )
 from fastaudio.util import apply_transform, test_audio_tensor
-
-
-@pytest.fixture(scope="session")
-def ex_files():
-    p = untar_data(URLs.SAMPLE_SPEAKERS10)
-    return (p / "train").ls()
-
-
-def test_path(ex_files):
-    assert len(ex_files) > 0
 
 
 def test_crop_time():
@@ -46,11 +37,14 @@ def test_crop_time():
         _test_close(out.width, int((i / inp.duration) * inp.width), eps=1.01)
 
 
-def test_crop_time_with_pipeline(ex_files):
+def test_crop_time_with_pipeline():
     """
     AudioToSpec->CropTime and ResizeSignal->AudioToSpec
     will result in same size images
     """
+    afn = "./test.wav"
+    test_audio_tensor().save(afn)
+    ex_files = [afn] * 4
     oa = OpenAudio(ex_files)
     crop_dur = random.randint(1000, 5000)
     DBMelSpec = SpectrogramTransformer(mel=True, to_db=True)
@@ -132,3 +126,37 @@ def test_resize_int():
     sg = a2s(audio)
     inp, out = apply_transform(resize_int, sg)
     _test_eq(out.shape[1:], torch.Size([size, size]))
+
+
+def test_delta_channels():
+    " nchannels for a spectrogram is how many channels its original audio had "
+    delta = Delta()
+    audio = test_audio_tensor(channels=1)
+    a2s = AudioToSpec.from_cfg(AudioConfig.Voice())
+    sg = a2s(audio)
+    inp, out = apply_transform(delta, sg)
+
+    _test_eq(out.nchannels, inp.nchannels * 3)
+    _test_eq(out.shape[1:], inp.shape[1:])
+    _test_ne(out[0], out[1])
+
+
+def test_signal_shift_on_sg():
+    audio = test_audio_tensor()
+    a2s = AudioToSpec.from_cfg(AudioConfig.BasicSpectrogram())
+    shifter = SignalShifter(1, 1)
+    inp, out = apply_transform(shifter, a2s(audio))
+    _test_ne(inp, out)
+
+
+def test_sg_roll():
+    roll = SGRoll()
+    audio = test_audio_tensor()
+    a2s = AudioToSpec.from_cfg(AudioConfig.BasicSpectrogram())
+    inp, out = apply_transform(roll, a2s(audio))
+    _test_ne(inp, out)
+
+
+def test_sg_roll_fails_direction():
+    with pytest.raises(ValueError):
+        SGRoll(direction=2)

@@ -33,9 +33,7 @@ def _merge_splits(splits, pad):
 class RemoveSilence(Transform):
     """Split signal at points of silence greater than 2*pad_ms """
 
-    def __init__(
-        self, remove_type=RemoveType.Trim, threshold=20, pad_ms=20
-    ):
+    def __init__(self, remove_type=RemoveType.Trim, threshold=20, pad_ms=20):
         self.remove_type = remove_type
         self.threshold = threshold
         self.pad_ms = pad_ms
@@ -46,7 +44,10 @@ class RemoveSilence(Transform):
         padding = int(self.pad_ms / 1000 * ai.sr)
         if padding > ai.nsamples:
             return ai
-        splits = split(ai.numpy(), top_db=self.threshold, hop_length=padding)
+        if ai.shape[0] < 2:
+            splits = split(ai[0].numpy(), top_db=self.threshold, hop_length=padding)
+        else:
+            splits = split(ai.numpy(), top_db=self.threshold, hop_length=padding)
         if self.remove_type == RemoveType.Split:
             sig = [
                 ai[:, (max(a - padding, 0)) : (min(b + padding, ai.nsamples))]

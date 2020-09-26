@@ -6,9 +6,9 @@
     :docstring:
     :members:
 
-## CropSignal
+## ResizeSignal
 
-::: fastaudio.augment.signal.CropSignal
+::: fastaudio.augment.signal.ResizeSignal
     :docstring:
 
 ## SignalShifter

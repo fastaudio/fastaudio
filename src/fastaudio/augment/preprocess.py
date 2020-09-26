@@ -1,17 +1,19 @@
+from enum import Enum
+
 import torch
 from fastai.imports import math, np
 from fastcore.transform import Transform
-from fastcore.utils import mk_class, store_attr
 from librosa.effects import split
 from scipy.signal import resample_poly
 
 from ..core.signal import AudioTensor
 
-mk_class(
-    "RemoveType",
-    **{o: o.lower() for o in ["Trim", "All", "Split"]},
-    doc="All methods of removing silence as attributes to get tab-completion and typo-proofing",
-)
+
+class RemoveType(Enum):
+    "All methods of removing silence as attributes to get tab-completion and typo-proofing"
+    Trim = "trim"
+    All = "all"
+    Split = "split"
 
 
 def _merge_splits(splits, pad):
@@ -31,10 +33,10 @@ def _merge_splits(splits, pad):
 class RemoveSilence(Transform):
     """Split signal at points of silence greater than 2*pad_ms """
 
-    def __init__(
-        self, remove_type=RemoveType.Trim, threshold=20, pad_ms=20  # noqa: F821
-    ):
-        store_attr(self, "remove_type, threshold, pad_ms")
+    def __init__(self, remove_type=RemoveType.Trim, threshold=20, pad_ms=20):
+        self.remove_type = remove_type
+        self.threshold = threshold
+        self.pad_ms = pad_ms
 
     def encodes(self, ai: AudioTensor) -> AudioTensor:
         if self.remove_type is None:
@@ -42,15 +44,18 @@ class RemoveSilence(Transform):
         padding = int(self.pad_ms / 1000 * ai.sr)
         if padding > ai.nsamples:
             return ai
-        splits = split(ai.numpy(), top_db=self.threshold, hop_length=padding)
-        if self.remove_type == "split":
+        if ai.shape[0] < 2:
+            splits = split(ai[0].numpy(), top_db=self.threshold, hop_length=padding)
+        else:
+            splits = split(ai.numpy(), top_db=self.threshold, hop_length=padding)
+        if self.remove_type == RemoveType.Split:
             sig = [
                 ai[:, (max(a - padding, 0)) : (min(b + padding, ai.nsamples))]
                 for (a, b) in _merge_splits(splits, padding)
             ]
-        elif self.remove_type == "trim":
+        elif self.remove_type == RemoveType.Trim:
             sig = [ai[:, (max(splits[0, 0] - padding, 0)) : splits[-1, -1] + padding]]
-        elif self.remove_type == "all":
+        elif self.remove_type == RemoveType.All:
             sig = [
                 torch.cat(
                     [
@@ -63,7 +68,8 @@ class RemoveSilence(Transform):
         else:
             raise ValueError(
                 f"""Valid options for silence removal are
-                None, 'split', 'trim', 'all' not '{self.remove_type}'."""
+                None, RemoveType.Split, RemoveType.Trim, RemoveType.All,
+                but not '{self.remove_type}'."""
             )
         ai.data = torch.cat(sig, dim=-1)
         return ai

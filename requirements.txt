@@ -1,0 +1,6 @@
+colorednoise>=1.1
+fastai>=2.0
+fastcore==1.0.8
+IPython>=7.16
+librosa==0.8
+torchaudio>=0.6

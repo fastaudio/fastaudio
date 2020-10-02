@@ -19,4 +19,7 @@ except VersionConflict:
 
 
 if __name__ == "__main__":
-    setup(use_pyscaffold=True)
+    with open('requirements.txt', 'r') as f:
+        REQUIREMENTS = f.read()
+    print(REQUIREMENTS.split('\n'))
+    setup(use_pyscaffold=True, install_requires=REQUIREMENTS.split('\n'))

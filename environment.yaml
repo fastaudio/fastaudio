@@ -11,7 +11,7 @@ dependencies:
   - torchaudio>=0.6
   - cudatoolkit=10.1
   - librosa=0.8
-  - fastcore==1.0.8
+  - fastcore>=1.0.19
   - pip>=20.2
   - IPython>=7.16
   - pip:

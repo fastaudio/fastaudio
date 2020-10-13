@@ -1,3 +1,5 @@
+import warnings
+
 import librosa
 import torch
 from fastai.imports import partial, random
@@ -5,11 +7,19 @@ from fastcore.transform import Transform
 from fastcore.utils import ifnone
 from torch.nn import functional as F
 
-from ..core.spectrogram import AudioSpectrogram
+from ..core.spectrogram import AudioSpectrogram, AudioTensor
 from .signal import AudioPadType
 
 
-class CropTime(Transform):
+class SpectrogramTransform(Transform):
+    "Helps prevent us trying to apply to Audio Tensors"
+
+    def encodes(self, audio: AudioTensor) -> AudioTensor:
+        warnings.warn(f"You are trying to apply a {type(self).__name__} to an AudioTensor {audio.shape}")
+        return audio
+
+
+class CropTime(SpectrogramTransform):
     """Random crops full spectrogram to be length specified in ms by crop_duration"""
 
     def __init__(self, duration, pad_mode=AudioPadType.Zeros):
@@ -52,7 +62,7 @@ def _tfm_pad_spectro(sg, width, pad_mode=AudioPadType.Zeros):
         )
 
 
-class MaskFreq(Transform):
+class MaskFreq(SpectrogramTransform):
     """Google SpecAugment frequency masking from https://arxiv.org/abs/1904.08779."""
 
     def __init__(self, num_masks=1, size=20, start=None, val=None):
@@ -79,7 +89,7 @@ class MaskFreq(Transform):
         return sg
 
 
-class MaskTime(Transform):
+class MaskTime(SpectrogramTransform):
     """Google SpecAugment time masking from https://arxiv.org/abs/1904.08779."""
 
     def __init__(self, num_masks=1, size=20, start=None, val=None):
@@ -100,7 +110,7 @@ class MaskTime(Transform):
         return sg
 
 
-class SGRoll(Transform):
+class SGRoll(SpectrogramTransform):
     """Shifts spectrogram along x-axis wrapping around to other side"""
 
     def __init__(self, max_shift_pct=0.5, direction=0):
@@ -129,7 +139,7 @@ def _torchdelta(sg: AudioSpectrogram, order=1, width=9):
     )
 
 
-class Delta(Transform):
+class Delta(SpectrogramTransform):
     """Creates delta with order 1 and 2 from spectrogram
     and concatenate with the original"""
 
@@ -144,7 +154,7 @@ class Delta(Transform):
         return sg
 
 
-class TfmResize(Transform):
+class TfmResize(SpectrogramTransform):
     """Temporary fix to allow image resizing transform"""
 
     def __init__(self, size, interp_mode="bilinear"):

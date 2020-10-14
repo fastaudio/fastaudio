@@ -12,7 +12,7 @@ In the future we will offer conda and pip installs, but as the code is rapidly c
 
 ---
 
-Install method using pip:
+Install using pip:
 
 ```
 pip install git+https://github.com/fastaudio/fastaudio.git

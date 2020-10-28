@@ -150,7 +150,7 @@ def test_signal_shift_on_sg():
 
 
 def test_sg_roll():
-    roll = SGRoll()
+    roll = SGRoll(1)
     audio = test_audio_tensor()
     a2s = AudioToSpec.from_cfg(AudioConfig.BasicSpectrogram())
     inp, out = apply_transform(roll, a2s(audio))

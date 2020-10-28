@@ -12,17 +12,7 @@ In the future we will offer conda and pip installs, but as the code is rapidly c
 
 ---
 
-To install using anaconda:
-
-```
-wget https://raw.githubusercontent.com/fastaudio/fastaudio/master/environment.yaml
-conda env create -f environment.yaml
-```
-Then, a new environment with the name `fastaudio` will be created and you can access it by running `conda activate fastaudio`
-
----
-
-Alternative install method using pip:
+Install using pip:
 
 ```
 pip install git+https://github.com/fastaudio/fastaudio.git
@@ -44,6 +34,15 @@ git clone https://github.com/fastaudio/fastaudio.git
 cd fastaudio
 pip install -e .[dev,testing]
 pre-commit install
+```
+
+# Testing
+To run the tests and verify everythig is working, you'll need to create an environment like above:
+
+```
+git clone git@github.com:fastaudio/fastaudio
+pip install .[dev,testing]
+pytest
 ```
 
 # Contributing to the library

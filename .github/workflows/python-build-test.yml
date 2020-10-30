@@ -29,6 +29,7 @@ jobs:
         pip install -e .[dev,testing]
     - name: Test with pytest
       run: |
+        jupyter kernelspec list
         pytest -sv
     - name: Generate coverage report
       run: |

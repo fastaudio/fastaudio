@@ -2,6 +2,7 @@
 from pkg_resources import DistributionNotFound, get_distribution
 import torchaudio
 
+torchaudio.USE_SOUNDFILE_LEGACY_INTERFACE = False
 torchaudio.set_audio_backend("soundfile")
 try:
     # Change here if project is renamed and does not equal the package name

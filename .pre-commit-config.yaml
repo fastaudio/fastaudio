@@ -1,16 +1,20 @@
 exclude: '^docs/conf.py'
 
 repos:
+    # Format Code
     - repo: https://github.com/ambv/black
       rev: stable
       hooks:
         - id: black
 
-    - repo: https://github.com/pre-commit/mirrors-isort
-      rev: v4.3.4
+    # Sort imports
+    - repo: https://github.com/PyCQA/isort
+      rev: 5.5.4
       hooks:
       - id: isort
+        args: ["--profile", "black"]
 
+    # Formatting, Whitespace, etc
     - repo: git://github.com/pre-commit/pre-commit-hooks
       rev: v2.2.3
       hooks:
@@ -28,4 +32,4 @@ repos:
       - id: mixed-line-ending
         args: ['--fix=no']
       - id: flake8
-        args: ['--ignore=E203,E501,F811,E712,']  # default of Black
+        args: ['--ignore=E203,E501,F811,E712,W503']

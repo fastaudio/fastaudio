@@ -23,6 +23,18 @@ pip install git+https://github.com/fastaudio/fastaudio.git
 
 ---
 
+## Tutorials
+
+Run through the notebooks in the docs folder or read them on: fastaudio.github.io
+
+If you are new to audio start with the Introduction Notebooks
+
+There is also a resources wiki in this repo that you might find useful:
+
+The [Wiki](https://github.com/fastaudio/fastaudio/wiki/Learning-resources) has a lot of interesting resources.
+
+---
+
 If you plan on **contributing** to the library instead, you will need to do a editable install:
 
 ```

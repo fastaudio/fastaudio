@@ -7,7 +7,7 @@ def test_can_run_notebooks():
     notebooks = glob("**/*.ipynb")
     for nb in notebooks:
         try:
-            pm.execute_notebook(nb, "/dev/null")
+            pm.execute_notebook(nb, "/dev/null", kernel_name="python")
         except Exception as e:
             # Which notebook caused the error
             raise Exception(nb, e)

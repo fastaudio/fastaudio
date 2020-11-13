@@ -14,9 +14,6 @@
 
 ## Install
 
-In the future we will offer conda and pip installs, but as the code is rapidly changing, we recommend that only those interested in contributing and experimenting install for now. Everyone else should use [Fastai audio v1](https://github.com/mogwai/fastai_audio)
-
----
 
 Install using pip:
 
@@ -43,22 +40,22 @@ pre-commit install
 ```
 
 # Testing
-To run the tests and verify everythig is working, you'll need to create an environment like above:
+To run the tests and verify everythig is working, run the following command from the `fastaudio/` folder (only applicable after doing the editable install steps):
 
 ```
-git clone git@github.com:fastaudio/fastaudio
-pip install .[dev,testing]
 pytest
 ```
 
+This will run all of the test suit, reporting if there are any errors and also giving a code coverage report. Adittionally, there are extra checks that `pre-commit` run automatically every commit to verify the formatting and flake8 violations. If you want to run those manually, the command is `pre-commit run`
+
 # Contributing to the library
 
-We are looking for contributors of all skill levels. If you don't have time to contribute, please at least reach out and give us some feedback on the library.
+We are looking for contributors of all skill levels. If you don't have time to contribute, please at least reach out and give us some feedback on the library by posting in the [v2 audio thread](https://forums.fast.ai/t/fastai-v2-audio/53535).
 
 Make sure that you have activated the environment that you used `pre-commit install` in so that pre-commit knows where to run the git hooks.
 
 ### How to contribute
-Create issues, write documentation, suggest/add features, submit PRs. We are open to anything.
+Create issues, write documentation, suggest/add features, submit PRs. We are open to anything. A good first step would be posting in the [v2 audio thread](https://forums.fast.ai/t/fastai-v2-audio/53535) introducing yourself.
 
 ## Note
 

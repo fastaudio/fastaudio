@@ -38,7 +38,7 @@ def AudioGetter(suf="", recurse=True, folders=None):
 URLs.SPEAKERS10 = "http://www.openslr.org/resources/45/ST-AEDS-20180100_1-OS.tgz"
 URLs.ESC50 = "https://github.com/karoldvl/ESC-50/archive/master.zip"
 URLs.SAMPLE_SPEAKERS10 = (
-    "https://github.com/fastaudio/10_Speakers_Sample/archive/master.zip"
+    "https://github.com/fastaudio/10_Speakers_Sample/archive/10_speakers_sample.zip"
 )
 
 

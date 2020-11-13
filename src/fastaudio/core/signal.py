@@ -8,9 +8,9 @@ from fastai.data.transforms import Transform, get_files
 from fastai.imports import Path, mimetypes, plt, tarfile
 from fastai.torch_core import TensorBase
 from fastai.vision.data import get_grid
-from fastcore.dispatch import retain_type, typedispatch
-from fastcore.utils import ifnone
+from fastcore.dispatch import typedispatch
 from fastcore.meta import delegates
+from fastcore.utils import ifnone
 from IPython.display import Audio, display
 from librosa.display import waveplot
 
@@ -66,20 +66,8 @@ class AudioTensor(TensorBase):
         sig, sr = torchaudio.load(fn, **kwargs)
         return cls(sig, sr=sr)
 
-    @property
-    def sr(self):
-        "Property. Sampling rate of the audio"
-        return self.get_meta("sr")
-
     def __new__(cls, x, sr=None, **kwargs):
         return super().__new__(cls, x, sr=sr, **kwargs)
-
-    # This one should probably use set_meta() but there is no documentation,
-    # and I could not get it to work. Even TensorBase.set_meta?? is pointing
-    # to the wrong source because of fastai patch on Tensorbase to retain types
-    @sr.setter
-    def sr(self, val):
-        self._meta["sr"] = val
 
     @property
     def nsamples(self):
@@ -127,17 +115,6 @@ class AudioTensor(TensorBase):
         if not overwrite and path.exists(fn):
             raise Exception("File already exists")
         torchaudio.save(fn, self.data, self.sr)
-
-
-def _get_f(fn):
-    def _f(self, *args, **kwargs):
-        res = getattr(super(TensorBase, self), fn)(*args, **kwargs)
-        return retain_type(res, self)
-
-    return _f
-
-
-setattr(AudioTensor, "__getitem__", _get_f("__getitem__"))
 
 
 def show_audio_signal(ai, ctx, ax=None, title="", **kwargs):

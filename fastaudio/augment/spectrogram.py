@@ -1,7 +1,6 @@
-import warnings
-
 import librosa
 import torch
+import warnings
 from fastai.imports import partial, random
 from fastcore.transform import Transform
 from fastcore.utils import ifnone
@@ -15,7 +14,9 @@ class SpectrogramTransform(Transform):
     "Helps prevent us trying to apply to Audio Tensors"
 
     def encodes(self, audio: AudioTensor) -> AudioTensor:
-        warnings.warn(f"You are trying to apply a {type(self).__name__} to an AudioTensor {audio.shape}")
+        warnings.warn(
+            f"You are trying to apply a {type(self).__name__} to an AudioTensor {audio.shape}"
+        )
         return audio
 
 

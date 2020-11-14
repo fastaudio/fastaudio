@@ -1,7 +1,6 @@
-from math import pi
-
 import torch
 from fastai.vision.augment import RandTransform
+from math import pi
 
 from fastaudio.core.signal import AudioTensor
 

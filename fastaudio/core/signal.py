@@ -1,6 +1,4 @@
 import random
-from os import path
-
 import torch
 import torchaudio
 from fastai.data.external import URLs
@@ -13,6 +11,7 @@ from fastcore.meta import delegates
 from fastcore.utils import ifnone
 from IPython.display import Audio, display
 from librosa.display import waveplot
+from os import path
 
 audio_extensions = tuple(
     str.lower(k) for k, v in mimetypes.types_map.items() if v.startswith("audio/")

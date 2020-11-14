@@ -1,13 +1,12 @@
-from dataclasses import make_dataclass
-from inspect import signature
-
 import torchaudio.transforms as transforms
+from dataclasses import make_dataclass
 from fastai.data.block import TransformBlock
 from fastai.data.transforms import IntToFloatTensor
 from fastai.imports import Path, partial
-from fastcore.transform import Pipeline
-from fastcore.utils import  ifnone
 from fastcore.meta import delegates
+from fastcore.transform import Pipeline
+from fastcore.utils import ifnone
+from inspect import signature
 from torchaudio import save as save_audio
 
 from ..augment.preprocess import Resample

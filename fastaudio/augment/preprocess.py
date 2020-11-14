@@ -1,6 +1,5 @@
-from enum import Enum
-
 import torch
+from enum import Enum
 from fastai.imports import math, np
 from fastcore.transform import Transform
 from librosa.effects import split

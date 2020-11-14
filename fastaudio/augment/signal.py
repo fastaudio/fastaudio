@@ -1,7 +1,6 @@
-from enum import Enum
-
 import colorednoise as cn
 import torch
+from enum import Enum
 from fastai.imports import np, random
 from fastai.vision.augment import RandTransform
 from fastcore.transform import Transform

@@ -6,7 +6,7 @@ source = fastaudio
 
 [paths]
 source =
-    src/
+    fastaudio/
     */site-packages/
 
 [report]

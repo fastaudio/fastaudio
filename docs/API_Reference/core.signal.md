@@ -28,7 +28,7 @@
 
 ::: fastaudio.core.signal.AudioTensor
     :docstring:
-    :members: create sr nsamples nchannels duration hear show
+    :members: create nsamples nchannels duration hear show
 
 ## OpenAudio
 

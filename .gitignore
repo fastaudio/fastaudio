@@ -52,5 +52,4 @@ MANIFEST
 .vscode
 
 # Notebook
-**/*.ipynb
 .vim

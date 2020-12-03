@@ -1,12 +1,12 @@
 # .coveragerc to control coverage.py
 [run]
 branch = True
-source = fastaudio
+source = src
 # omit = bad_file.py
 
 [paths]
 source =
-    fastaudio/
+    src/
     */site-packages/
 
 [report]

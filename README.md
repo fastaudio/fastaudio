@@ -40,7 +40,7 @@ pre-commit install
 ```
 
 # Testing
-To run the tests and verify everythig is working, run the following command from the `fastaudio/` folder (only applicable after doing the editable install steps):
+To run the tests and verify everything is working, run the following command from the `fastaudio/` folder (only applicable after doing the editable install steps):
 
 ```
 pytest

@@ -50,7 +50,7 @@ This will run all of the test suit, reporting if there are any errors and also g
 
 # Contributing to the library
 
-We are looking for contributors of all skill levels. If you don't have time to contribute, please at least reach out and give us some feedback on the library by posting in the [v2 audio thread](https://forums.fast.ai/t/fastai-v2-audio/53535).
+We are looking for contributors of all skill levels. If you don't have time to contribute, please at least reach out and give us some feedback on the library.
 
 Make sure that you have activated the environment that you used `pre-commit install` in so that pre-commit knows where to run the git hooks.
 

@@ -43,6 +43,9 @@ sdist/*
 docs/api/*
 docs/_rst/*
 docs/_build/*
+data_test/*
+data_test_cached/*
+test.wav
 cover/*
 MANIFEST
 

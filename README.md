@@ -8,7 +8,7 @@
 
 # Quick Start
 
-[Google Colab Notebook](https://colab.research.google.com/github/fastaudio/fastaudio/blob/master/docs//ESC50: Environmental Sound Classification.ipynb)
+[Google Colab Notebook](https://colab.research.google.com/github/fastaudio/fastaudio/blob/master/docs//ESC50:%20Environmental%20Sound%20Classification.ipynb)
 
 [Zachary Mueller's class](https://youtu.be/0IQYJNkAI3k?t=1665)
 

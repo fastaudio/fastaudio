@@ -7,6 +7,8 @@ from fastcore.transform import Transform
 
 from ..core.signal import AudioTensor
 from ..core.spectrogram import AudioSpectrogram
+from ..functional import random_mask
+from ..util import auto_batch
 
 
 class AudioPadType(Enum):
@@ -161,6 +163,28 @@ class ChangeVolume(RandTransform):
 
     def encodes(self, ai: AudioTensor):
         return ai.apply_gain(self.gain)
+
+
+class ChangeVolumeGPU(Transform):
+    """Change the volume of the signal."""
+
+    def __init__(self, p=0.5, lower=0.5, upper=1.5):
+        self.lower, self.upper = lower, upper
+        self.p = p
+        super().__init__()
+
+    @auto_batch(2)
+    def encodes(self, ai: AudioTensor):
+        op_shape = [ai.size(0), 1, 1]
+        scales = torch.where(
+            random_mask(op_shape, self.p, device=ai.device),
+            # Volume scaling
+            torch.empty(op_shape, device=ai.device).uniform_(self.lower, self.upper),
+            # No scaling
+            torch.ones(op_shape, device=ai.device),
+        )
+        ai *= scales
+        return ai
 
 
 class SignalCutout(RandTransform):

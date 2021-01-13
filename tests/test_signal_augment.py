@@ -11,7 +11,7 @@ from fastaudio.all import (
     AddNoise,
     AudioPadType,
     AudioTensor,
-    ChangeVolume,
+    ChangeVolumeGPU,
     DownmixMono,
     NoiseColor,
     RemoveSilence,
@@ -224,7 +224,7 @@ def test_noise_non_white(audio):
 
 
 def test_change_volume(audio):
-    changevol = ChangeVolume(1)
+    changevol = ChangeVolumeGPU(1)
     inp, out = apply_transform(changevol, audio)
     _test_ne(inp.data, out.data)
 

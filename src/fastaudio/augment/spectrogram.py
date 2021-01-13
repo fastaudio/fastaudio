@@ -5,6 +5,7 @@ from fastai.imports import partial, random
 from fastcore.transform import Transform
 from fastcore.utils import ifnone
 from torch.nn import functional as F
+from torchaudio.functional import compute_deltas
 
 from ..core.spectrogram import AudioSpectrogram, AudioTensor
 from ..util import auto_batch
@@ -153,6 +154,26 @@ class Delta(SpectrogramTransform):
             torch.stack([c, self.td(c, order=1), self.td(c, order=2)]) for c in sg
         ]
         sg.data = torch.cat(new_channels, dim=0)
+        return sg
+
+
+class DeltaGPU(SpectrogramTransform):
+    """Adds extra channels with delta (orders 1 and 2) to spectrogram.
+
+    Note that the input(s) must only have one channel. Passing a spectrogram
+    with multiple channels already may raise an error.
+
+    """
+
+    def __init__(self, width=9, mode="replicate"):
+        self.width = width
+        self.mode = mode
+
+    @auto_batch(3)
+    def encodes(self, sg: AudioSpectrogram):
+        delta = compute_deltas(sg, win_length=self.width, mode=self.mode)
+        delta2 = compute_deltas(delta, win_length=self.width, mode=self.mode)
+        sg.data = torch.cat([sg, delta, delta2], dim=1).contiguous()
         return sg
 
 

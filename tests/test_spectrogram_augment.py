@@ -13,9 +13,9 @@ from fastaudio.all import (
     AudioPadType,
     AudioToSpec,
     CropTime,
-    Delta,
     MaskFreq,
     MaskTime,
+    DeltaGPU,
     OpenAudio,
     Pipeline,
     ResizeSignal,
@@ -130,8 +130,9 @@ def test_resize_int():
 
 def test_delta_channels():
     " nchannels for a spectrogram is how many channels its original audio had "
-    delta = Delta()
-    audio = test_audio_tensor(channels=1)
+    delta = DeltaGPU()
+    # Explicitly check more than one channel
+    audio = test_audio_tensor(channels=2)
     a2s = AudioToSpec.from_cfg(AudioConfig.Voice())
     sg = a2s(audio)
     inp, out = apply_transform(delta, sg)

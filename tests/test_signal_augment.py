@@ -8,7 +8,7 @@ from fastai.data.all import test_eq as _test_eq
 from fastai.data.all import test_ne as _test_ne
 
 from fastaudio.all import (
-    AddNoise,
+    AddNoiseGPU,
     AudioPadType,
     AudioTensor,
     ChangeVolumeGPU,
@@ -208,17 +208,21 @@ def test_down_mix_mono(audio):
 
 def test_noise_fail_bad_color(audio):
     with pytest.raises(ValueError):
-        AddNoise(audio, color=5)
+        AddNoiseGPU(audio, color=5)
+
+    with pytest.raises(ValueError):
+        AddNoiseGPU(audio, color=-3)
 
 
 def test_noise_white(audio):
-    addnoise = AddNoise(color=NoiseColor.White)
+    addnoise = AddNoiseGPU(color=NoiseColor.White, p=1.0, min_level=0.1, max_level=0.2)
     inp, out = apply_transform(addnoise, audio)
     _test_ne(inp.data, out.data)
 
 
 def test_noise_non_white(audio):
-    addnoise = AddNoise(color=NoiseColor.Pink)
+    # White noise uses a different method to other noises, so test both.
+    addnoise = AddNoiseGPU(color=NoiseColor.Pink, p=1.0, min_level=0.1, max_level=0.2)
     inp, out = apply_transform(addnoise, audio)
     _test_ne(inp.data, out.data)
 

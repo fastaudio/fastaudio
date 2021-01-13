@@ -7,7 +7,7 @@ from fastcore.transform import Transform
 
 from ..core.signal import AudioTensor
 from ..core.spectrogram import AudioSpectrogram
-from ..functional import random_mask, region_mask
+from ..functional import NoiseColor, add_noise_, random_mask, region_mask
 from ..util import auto_batch
 
 
@@ -120,14 +120,6 @@ class SignalShifter(RandTransform):
         return shift_signal(sg, int(s), self.roll)
 
 
-class NoiseColor:
-    Violet = -2
-    Blue = -1
-    White = 0
-    Pink = 1
-    Brown = 2
-
-
 class AddNoise(Transform):
     "Adds noise of specified color and level to the audio signal"
 
@@ -148,6 +140,39 @@ class AddNoise(Transform):
         scaled_noise = noise * ai.data.abs().mean() * self.noise_level
         ai.data += scaled_noise
         return ai
+
+
+class AddNoiseGPU(Transform):
+    """Adds colored noise to the input audio.
+
+    Works on both `AudioTensor` and `AudioSpectrogram` objects.
+
+    """
+
+    def __init__(self, p=1.0, min_level=0.0, max_level=0.05, color=NoiseColor.White):
+        self.min_level = min_level
+        self.max_level = max_level
+        if not NoiseColor.valid(color):
+            raise ValueError(f"color {color} is not valid")
+        self.color = color
+        self.p = p
+        super().__init__()
+
+    def before_call(self, b, split_idx):
+        self.do = True
+
+    def _encodes(self, tensor):
+        return add_noise_(
+            tensor.data, self.color, self.min_level, self.max_level, self.p
+        )
+
+    @auto_batch(2)
+    def encodes(self, ai: AudioTensor):
+        return self._encodes(ai)
+
+    @auto_batch(3)
+    def encodes(self, sg: AudioSpectrogram):
+        return self._encodes(sg)
 
 
 class ChangeVolume(RandTransform):

@@ -22,7 +22,7 @@ from fastaudio.all import (
     SGRoll,
     SignalShifter,
     SpectrogramTransformer,
-    TfmResize
+    TfmResizeGPU,
 )
 from fastaudio.util import apply_transform, test_audio_tensor
 
@@ -120,7 +120,7 @@ def test_mask_freq():
 def test_resize_int():
     # Test when size is an int
     size = 224
-    resize_int = TfmResize(size)
+    resize_int = TfmResizeGPU(size)
     audio = test_audio_tensor()
     a2s = AudioToSpec.from_cfg(AudioConfig.Voice())
     sg = a2s(audio)

@@ -7,6 +7,7 @@ from fastcore.utils import ifnone
 from torch.nn import functional as F
 
 from ..core.spectrogram import AudioSpectrogram, AudioTensor
+from ..util import auto_batch
 from .signal import AudioPadType
 
 
@@ -169,4 +170,22 @@ class TfmResize(SpectrogramTransform):
         sg.data = F.interpolate(
             sg.unsqueeze(0), size=self.size, mode=self.interp_mode, align_corners=False
         ).squeeze(0)
+        return sg
+
+
+class TfmResizeGPU(SpectrogramTransform):
+    """Resize the spectrogram using interpolation."""
+
+    def __init__(self, size, interp_mode="bilinear"):
+        if isinstance(size, int):
+            self.size = (size, size)
+        else:
+            self.size = size
+        self.interp_mode = interp_mode
+
+    @auto_batch(3)
+    def encodes(self, sg: AudioSpectrogram):
+        sg.data = F.interpolate(
+            sg, size=self.size, mode=self.interp_mode, align_corners=False
+        )
         return sg

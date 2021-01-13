@@ -243,6 +243,37 @@ class SignalLoss(RandTransform):
         return ai.lose_signal(self.loss_pct)
 
 
+class SignalLossGPU(Transform):
+    """Randomly loses some percentage of samples (non-continuous).
+
+    The same points will be lost across channels, but different points will be
+    lost per-item.
+
+    """
+
+    def __init__(self, p=0.5, min_cut_pct=0.0, max_cut_pct=0.15):
+        self.max_cut_pct = max_cut_pct
+        self.min_cut_pct = min_cut_pct
+        self.p = p
+        super().__init__()
+
+    @auto_batch(2)
+    def encodes(self, ai: AudioTensor):
+        op_shape = [ai.size(0), 1, 1]
+
+        cut_pcts = torch.empty(
+            op_shape, device=ai.device
+        ).uniform_(self.min_cut_pct, self.max_cut_pct)
+        masks = (
+            random_mask(ai.shape, cut_pcts, device=ai.device)
+            # Only mask some items.
+            * random_mask(op_shape, self.p, device=ai.device)
+        )
+        ai.masked_fill_(masks, 0)
+
+        return ai
+
+
 # downmixMono was removed from torchaudio, we now just take the mean across channels
 # this works for both batches and individual items
 class DownmixMono(Transform):

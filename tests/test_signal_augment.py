@@ -18,7 +18,7 @@ from fastaudio.all import (
     RemoveType,
     Resample,
     ResizeSignal,
-    SignalLoss,
+    SignalLossGPU,
     SignalCutoutGPU,
     SignalShifter
 )
@@ -230,7 +230,7 @@ def test_change_volume(audio):
 
 
 def test_signal_loss(audio):
-    signalloss = SignalLoss(1)
+    signalloss = SignalLossGPU(1)
     inp, out = apply_transform(signalloss, audio)
     _test_ne(inp.data, out.data)
 

@@ -18,8 +18,8 @@ from fastaudio.all import (
     RemoveType,
     Resample,
     ResizeSignal,
-    SignalCutout,
     SignalLoss,
+    SignalCutoutGPU,
     SignalShifter
 )
 from fastaudio.augment.signal import _shift
@@ -235,7 +235,15 @@ def test_signal_loss(audio):
     _test_ne(inp.data, out.data)
 
 
-def test_signal_cutout(audio):
-    cutout = SignalCutout(1)
+def test_signal_cutout():
+    c, s = 2, 16000
+    min_cut_pct, max_cut_pct = 0.10, 0.15
+    # Create tensor with no zeros
+    audio = AudioTensor(torch.rand([c, s]), sr=16000) * 0.9 + 0.1
+    cutout = SignalCutoutGPU(p=1.0, min_cut_pct=min_cut_pct, max_cut_pct=max_cut_pct)
     inp, out = apply_transform(cutout, audio)
+
     _test_ne(inp.data, out.data)
+
+    num_zeros = (out == 0).sum()
+    assert min_cut_pct * s * c <= num_zeros <= max_cut_pct * s * c, num_zeros

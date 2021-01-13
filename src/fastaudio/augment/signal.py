@@ -7,7 +7,7 @@ from fastcore.transform import Transform
 
 from ..core.signal import AudioTensor
 from ..core.spectrogram import AudioSpectrogram
-from ..functional import random_mask
+from ..functional import random_mask, region_mask
 from ..util import auto_batch
 
 
@@ -200,6 +200,32 @@ class SignalCutout(RandTransform):
 
     def encodes(self, ai: AudioTensor):
         return ai.cutout(self.cut_pct)
+
+
+class SignalCutoutGPU(Transform):
+    """Zeros a continuous section of the signal."""
+
+    def __init__(self, p=0.5, min_cut_pct=0.0, max_cut_pct=0.15):
+        self.max_cut_pct = max_cut_pct
+        self.min_cut_pct = min_cut_pct
+        self.p = p
+        super().__init__()
+
+    @auto_batch(2)
+    def encodes(self, ai: AudioTensor):
+        n, c, s = ai.shape
+
+        mask = (
+            region_mask(
+                n, (s * self.min_cut_pct), (s * self.max_cut_pct), s, device=ai.device
+            )
+            # Only mask some items in the batch
+            * random_mask([n, 1], self.p, device=ai.device)
+        )
+        # Only apply mask to a random subset of items
+        ai.masked_fill_(mask.view(n, 1, s), 0.0)
+
+        return ai
 
 
 class SignalLoss(RandTransform):

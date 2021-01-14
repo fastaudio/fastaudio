@@ -1,7 +1,6 @@
-import random
-
 import pytest
 
+import random
 import torch
 from fastai.data.all import test_close as _test_close
 from fastai.data.all import test_eq as _test_eq

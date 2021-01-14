@@ -27,9 +27,7 @@ def region_mask(n, min_mask_size, max_mask_size, maskable_length, device=None):
     return (mask_starts <= indexes) & (indexes < mask_ends)
 
 
-def mask_along_axis_(
-    specgrams, num_masks, min_size, max_size, mask_val=None, axis=2
-):
+def mask_along_axis_(specgrams, num_masks, min_size, max_size, mask_val=None, axis=2):
     """Apply SpecAugment masks emitting from one axis.
 
     ``specgrams`` should be a tensor of shape (batch, channels, freq, time).
@@ -54,13 +52,17 @@ def mask_along_axis_(
     else:
         # To create multiple masks per spectrogram, create a larger batch,
         # reshape, then merge.
-        masks = region_mask(
-            num_masks * n,
-            min_size,
-            max_size,
-            a,
-            device=device,
-        ).view(num_masks, n, a).amax(dim=0)
+        masks = (
+            region_mask(
+                num_masks * n,
+                min_size,
+                max_size,
+                a,
+                device=device,
+            )
+            .view(num_masks, n, a)
+            .amax(dim=0)
+        )
     # Expand so it can be broadcasted.
     masks = masks.view(n, 1, 1, a)
 

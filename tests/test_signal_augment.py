@@ -1,7 +1,6 @@
-import random
-
 import pytest
 
+import random
 import torch
 from fastai.data.all import test_close as _test_close
 from fastai.data.all import test_eq as _test_eq
@@ -18,9 +17,9 @@ from fastaudio.all import (
     RemoveType,
     Resample,
     ResizeSignal,
-    SignalLossGPU,
     SignalCutoutGPU,
-    SignalShifter
+    SignalLossGPU,
+    SignalShifter,
 )
 from fastaudio.augment.signal import _shift
 from fastaudio.util import apply_transform, test_audio_tensor

@@ -117,9 +117,7 @@ class MaskTime(SpectrogramTransform):
 class _MaskAxisGPU(SpectrogramTransform):
     """Base class for GPU-based SpecAugment masking transforms."""
 
-    def __init__(
-        self, axis, num_masks, min_size, max_size, mask_val
-    ):
+    def __init__(self, axis, num_masks, min_size, max_size, mask_val):
         if axis not in [2, 3]:
             raise ValueError("Can only mask the time or frequency axis (2 or 3)")
         self.num_masks = num_masks

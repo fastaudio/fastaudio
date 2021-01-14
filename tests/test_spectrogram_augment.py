@@ -7,15 +7,17 @@ from fastai.data.all import test_close as _test_close
 from fastai.data.all import test_eq as _test_eq
 from fastai.data.all import test_fail as _test_fail
 from fastai.data.all import test_ne as _test_ne
+from unittest.mock import patch
 
 from fastaudio.all import (
     AudioConfig,
     AudioPadType,
+    AudioSpectrogram,
     AudioToSpec,
     CropTime,
-    MaskFreq,
-    MaskTime,
     DeltaGPU,
+    MaskFreqGPU,
+    MaskTimeGPU,
     OpenAudio,
     Pipeline,
     ResizeSignal,
@@ -89,32 +91,111 @@ def test_fail_bad_pad():
 
 
 def test_mask_freq():
-    # create a random frequency mask and test that it is being correctly applied
-    size, start, val = [random.randint(1, 50) for i in range(3)]
-    freq_mask_test = MaskFreq(size=size, start=start, val=val)
-    sg_orig = test_audio_tensor()
-    a2s = AudioToSpec.from_cfg(AudioConfig.Voice())
-    sg = a2s(sg_orig)
+    c, f, t = 2, 120, 80
 
-    inp, out = apply_transform(freq_mask_test, sg)
-    _test_eq(
-        out[:, start : start + size, :],
-        val * torch.ones_like(inp)[:, start : start + size, :],
+    # Create a random frequency mask and test that it is being correctly applied
+    min_size = 5
+    max_size = 7
+
+    sg = AudioSpectrogram(torch.rand([c, f, t]))
+    val = 10  # Use a value not in the original spectrogram
+    gradient_sg = AudioSpectrogram(
+        torch.linspace(0, 1, f).view(1, f, 1).repeat([c, 1, t])
     )
+    ones = torch.ones_like(sg)
+
+    # Test patching with mean
+    with patch(
+        "fastaudio.functional.region_mask",
+        side_effect=[
+            torch.BoolTensor([[1] * 10 + [0] * (f - 10)]),
+        ],
+    ):
+        mask_with_mean = MaskFreqGPU(
+            min_size=min_size, max_size=max_size, mask_val=None
+        )
+        # Use a gradient so we can be sure the mean will never show up outside the mask
+        inp, out = apply_transform(mask_with_mean, gradient_sg)
+        channelwise_mean = inp[:, :10, :].mean(dim=(-2, -1)).reshape(-1, 1, 1)
+        _test_eq(out[:, :10, :], channelwise_mean * ones[:, :10, :])
+        assert not (out[:, 10:, :] == channelwise_mean).any(), out == channelwise_mean
+
+    # Test multiple masks (and patching with value)
+    with patch(
+        "fastaudio.functional.region_mask",
+        side_effect=[
+            torch.BoolTensor([[1] * 10 + [0] * (f - 10), [0] * (f - 10) + [1] * 10]),
+        ],
+    ):
+        mask_with_val = MaskFreqGPU(
+            min_size=min_size, num_masks=2, max_size=max_size, mask_val=val
+        )
+        inp, out = apply_transform(mask_with_val, sg)
+        _test_eq(
+            out[:, :10, :],
+            val * ones[:, :10, :],
+        )
+        _test_eq(
+            out[:, f - 10 :, :],
+            val * ones[:, f - 10 :, :],
+        )
+        matches = out[:, 10 : f - 10] == val
+        assert not matches.any(), matches
 
 
-def test_mask_freq():
-    # create a random time mask and test that it is being correctly applied
-    size, start, val = [random.randint(1, 50) for i in range(3)]
-    time_mask_test = MaskTime(size=size, start=start, val=val)
-    audio = test_audio_tensor()
-    a2s = AudioToSpec.from_cfg(AudioConfig.Voice())
-    sg = a2s(audio)
-    inp, out = apply_transform(time_mask_test, sg)
-    _test_eq(
-        out[:, :, start : start + size],
-        val * torch.ones_like(inp)[:, :, start : start + size],
+def test_mask_time():
+    c, f, t = 2, 120, 80
+
+    min_size = 5
+    max_size = 7
+
+    sg = AudioSpectrogram(torch.rand([c, f, t]))
+    val = 10  # Use a value not in the original spectrogram
+    gradient_sg = AudioSpectrogram(
+        torch.linspace(0, 1, t).view(1, 1, t).repeat([c, f, 1])
     )
+    ones = torch.ones_like(sg)
+
+    # Test patching with mean
+    with patch(
+        "fastaudio.functional.region_mask",
+        side_effect=[
+            torch.BoolTensor([[1] * 10 + [0] * (t - 10)]),
+        ],
+    ):
+        mask_with_mean = MaskTimeGPU(
+            min_size=min_size, max_size=max_size, mask_val=None
+        )
+        # Use a gradient so we can be sure the mean will never show up outside the mask
+        inp, out = apply_transform(mask_with_mean, gradient_sg)
+        channelwise_mean = inp[..., :10].mean(dim=(-2, -1)).reshape(-1, 1, 1)
+        _test_close(
+            out[..., :10],
+            channelwise_mean * ones[..., :10],
+        )
+        assert not (out[..., 10:] == channelwise_mean).any(), out == channelwise_mean
+
+    # Test multiple masks (and patching with value)
+    with patch(
+        "fastaudio.functional.region_mask",
+        side_effect=[
+            torch.BoolTensor([[1] * 10 + [0] * (t - 10), [0] * (t - 10) + [1] * 10]),
+        ],
+    ):
+        mask_with_val = MaskTimeGPU(
+            min_size=min_size, num_masks=2, max_size=max_size, mask_val=val
+        )
+        inp, out = apply_transform(mask_with_val, sg)
+        _test_eq(
+            out[..., :10],
+            val * ones[..., :10],
+        )
+        _test_eq(
+            out[..., t - 10 :],
+            val * ones[..., t - 10 :],
+        )
+        matches = out[..., 10 : t - 10] == val
+        assert not matches.any(), matches
 
 
 def test_resize_int():

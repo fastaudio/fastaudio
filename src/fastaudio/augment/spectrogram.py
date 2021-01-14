@@ -8,6 +8,7 @@ from torch.nn import functional as F
 from torchaudio.functional import compute_deltas
 
 from ..core.spectrogram import AudioSpectrogram, AudioTensor
+from ..functional import mask_along_axis_
 from ..util import auto_batch
 from .signal import AudioPadType
 
@@ -111,6 +112,55 @@ class MaskTime(SpectrogramTransform):
         )(sg)
         sg.data = torch.einsum("...ij->...ji", sg)
         return sg
+
+
+class _MaskAxisGPU(SpectrogramTransform):
+    """Base class for GPU-based SpecAugment masking transforms."""
+
+    def __init__(
+        self, axis, num_masks, min_size, max_size, mask_val
+    ):
+        if axis not in [2, 3]:
+            raise ValueError("Can only mask the time or frequency axis (2 or 3)")
+        self.num_masks = num_masks
+        self.min_size = min_size
+        self.max_size = max_size
+        self.mask_val = mask_val
+        self.axis = axis
+        super().__init__()
+
+    @auto_batch(3)
+    def encodes(self, sg: AudioSpectrogram):
+        return mask_along_axis_(
+            sg,
+            num_masks=self.num_masks,
+            min_size=self.min_size,
+            max_size=self.max_size,
+            mask_val=self.mask_val,
+            axis=self.axis,
+        )
+
+
+class MaskFreqGPU(_MaskAxisGPU):
+    """Google SpecAugment frequency masking from https://arxiv.org/abs/1904.08779.
+
+    This version runs on batches and can be run efficiently on the GPU.
+
+    """
+
+    def __init__(self, num_masks=1, min_size=1, max_size=10, mask_val=None):
+        super().__init__(2, num_masks, min_size, max_size, mask_val)
+
+
+class MaskTimeGPU(_MaskAxisGPU):
+    """Google SpecAugment time masking from https://arxiv.org/abs/1904.08779.
+
+    This version runs on batches and can be run efficiently on the GPU.
+
+    """
+
+    def __init__(self, num_masks=1, min_size=1, max_size=10, mask_val=None):
+        super().__init__(3, num_masks, min_size, max_size, mask_val)
 
 
 class SGRoll(SpectrogramTransform):

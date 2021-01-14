@@ -27,6 +27,70 @@ def region_mask(n, min_mask_size, max_mask_size, maskable_length, device=None):
     return (mask_starts <= indexes) & (indexes < mask_ends)
 
 
+def mask_along_axis_(
+    specgrams, num_masks, min_size, max_size, mask_val=None, axis=2
+):
+    """Apply SpecAugment masks emitting from one axis.
+
+    ``specgrams`` should be a tensor of shape (batch, channels, freq, time).
+    ``axis`` must be either `2` or `3`.
+
+    Masks are replaced with the mean of the masked area. Provide ``mask_val`` to
+    mask with a specific value.
+
+    """
+    device = specgrams.device
+
+    if axis != 3:
+        # Orient so the axis we're masking comes last
+        specgrams = specgrams.transpose(axis, -1)
+
+    n, _, _, a = specgrams.shape
+
+    # First create the broadcastable masks. Each spectrogram gets a different
+    # set of masks (but the same masks span across channels).
+    if num_masks == 1:
+        masks = region_mask(n, min_size, max_size, a, device=device)
+    else:
+        # To create multiple masks per spectrogram, create a larger batch,
+        # reshape, then merge.
+        masks = region_mask(
+            num_masks * n,
+            min_size,
+            max_size,
+            a,
+            device=device,
+        ).view(num_masks, n, a).amax(dim=0)
+    # Expand so it can be broadcasted.
+    masks = masks.view(n, 1, 1, a)
+
+    if mask_val:
+        specgrams.masked_fill_(masks, mask_val)
+    else:
+        # Mask with the channel-wise mean. Note while each channel takes the
+        # same mask shape, the replacement value is determined per-channel.
+
+        # Take the mean of the masked area, not the whole spectrogram, so as not
+        # to change the overall mean (although this will affect the standard
+        # deviation).
+        mask_vals = (
+            specgrams.mul(masks).sum((-2, -1))
+            # This will be broadcast, so we have to manually multiply
+            # by the size of that dimension.
+            / (masks.sum((-2, -1)) * specgrams.shape[-2])
+        )
+
+        # Alternate method: mean of whole channel, not just masked area.
+        # mask_vals = specgrams.mean(-2, -1)
+
+        specgrams = torch.where(masks, mask_vals[..., None, None], specgrams)
+    if axis == 3:
+        return specgrams
+    else:
+        # Restore original orientation
+        return specgrams.transpose(axis, -1)
+
+
 def random_mask(shape, p, device=None):
     """Create a bool tensor with items set to 1 with probability ``p``.
 

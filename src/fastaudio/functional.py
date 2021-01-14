@@ -244,8 +244,8 @@ def add_noise_(x: Tensor, color: NoiseColor, min_level: float, max_level: float,
         # Note that noise is scaled per-item, not per-channel. This means loud
         # channels will dwarf quiet channels.
         random_mask([n], p, device=x.device)
-        * (x.reshape(n, -1).std(dim=1) * (max_level - min_level) + min_level)
-        * torch.rand([n], device=x.device)
+        * x.reshape(n, -1).std(dim=1)
+        * (torch.rand([n], device=x.device) * (max_level - min_level) + min_level)
     ).reshape([n] + [1] * (x.dim() - 1))
     x += noise_levels * (colored_noise(x.shape, exponent=color, device=x.device) - 0.5)
     return x

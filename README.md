@@ -18,7 +18,7 @@
 Install using pip:
 
 ```
-pip install git+https://github.com/fastaudio/fastaudio.git
+pip install fastaudio
 ```
 
 ---

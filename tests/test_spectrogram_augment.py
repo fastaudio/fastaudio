@@ -218,8 +218,9 @@ def test_delta_channels():
     inp, out = apply_transform(delta, sg)
 
     _test_eq(out.nchannels, inp.nchannels * 3)
-    _test_eq(out.shape[1:], inp.shape[1:])
-    _test_ne(out[0], out[1])
+    _test_eq(out.shape[-2:], inp.shape[-2:])
+    for i1, i2 in [(0, 2), (1, 3), (0, 4), (1, 5), (2, 4), (3, 5)]:
+        _test_ne(out[i1], out[i2])
 
 
 def test_signal_shift_on_sg():

@@ -220,7 +220,7 @@ def test_delta_channels():
     _test_eq(out.nchannels, inp.nchannels * 3)
     _test_eq(out.shape[-2:], inp.shape[-2:])
     for i1, i2 in [(0, 2), (1, 3), (0, 4), (1, 5), (2, 4), (3, 5)]:
-        _test_ne(out[i1], out[i2])
+        assert not torch.allclose(out[i1], out[i2])
 
 
 def test_signal_shift_on_sg():

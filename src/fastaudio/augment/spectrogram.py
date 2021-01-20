@@ -206,12 +206,7 @@ class Delta(SpectrogramTransform):
 
 
 class DeltaGPU(SpectrogramTransform):
-    """Adds extra channels with delta (orders 1 and 2) to spectrogram.
-
-    Note that the input(s) must only have one channel. Passing a spectrogram
-    with multiple channels already may raise an error.
-
-    """
+    """Adds extra channels with delta (orders 1 and 2) to spectrogram."""
 
     def __init__(self, width=9, mode="replicate"):
         self.width = width

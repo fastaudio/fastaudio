@@ -1,8 +1,8 @@
 import inspect
 import math
-
 import torch
 from fastai.data.all import test_close as _close
+from tempfile import TemporaryFile
 from torchaudio.transforms import MelSpectrogram
 
 from fastaudio.all import AudioConfig, AudioTensor, AudioToMFCC, SpectrogramTransformer
@@ -80,6 +80,33 @@ def test_add_tensors():
 def test_check_nchannels():
     audio_tensor = AudioTensor(torch.ones(1, 3, 10), sr=120)
     assert audio_tensor.nchannels == 3
+
+
+def test_saved_audiotensor_keeps_metadata():
+    # This test is related to this issue: https://github.com/fastaudio/fastaudio/issues/95
+    # What happens is that multiprocessing uses pickling to distribute the data
+    # and the way it was done inside fastai breaks when loading the metadata
+    audio_tensor = test_audio_tensor()
+
+    with TemporaryFile("wb+") as f:
+        torch.save(audio_tensor, f)
+        f.seek(0, 0)  # Go back to the begining of the file to read
+        new_audio_tensor = torch.load(f)
+        assert new_audio_tensor.sr == audio_tensor.sr
+
+
+def test_saved_spectrogram_keeps_metadata():
+    # Same issue as the test above
+    item0 = test_audio_tensor()
+    DBMelSpec = SpectrogramTransformer(mel=True, to_db=True)
+    a2s = DBMelSpec(f_max=20000, n_mels=137)
+    sg = a2s(item0)
+
+    with TemporaryFile("wb+") as f:
+        torch.save(sg, f)
+        f.seek(0, 0)  # Go back to the begining of the file to read
+        new_sg = torch.load(f)
+        assert new_sg.sr == item0.sr
 
 
 def test_indexing_audiotensor():

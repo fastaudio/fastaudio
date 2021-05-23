@@ -8,8 +8,8 @@ from torch.nn import functional as F
 from torchaudio.functional import compute_deltas
 
 from ..core.spectrogram import AudioSpectrogram, AudioTensor
-from ..functional import mask_along_axis_
 from ..util import auto_batch
+from .functional import mask_along_axis_
 from .signal import AudioPadType
 
 

@@ -2,11 +2,10 @@ import torch
 from fastai.data.all import test_eq as _test_eq
 from unittest.mock import patch
 
-from fastaudio.functional import region_mask
+from fastaudio.augment.functional import region_mask
 
 
 class TestCreateRegionMask:
-
     def test_shape(self):
         _test_eq(region_mask(1, 5, 7, 10).shape, (1, 10))
         _test_eq(region_mask(2, 3, 7, 12).shape, (2, 12))

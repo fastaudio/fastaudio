@@ -7,8 +7,8 @@ from fastcore.transform import Transform
 
 from ..core.signal import AudioTensor
 from ..core.spectrogram import AudioSpectrogram
-from ..functional import NoiseColor, add_noise_, random_mask, region_mask
 from ..util import auto_batch
+from .functional import NoiseColor, add_noise_, random_mask, region_mask
 
 
 class AudioPadType(Enum):
@@ -286,9 +286,9 @@ class SignalLossGPU(Transform):
     def encodes(self, ai: AudioTensor):
         op_shape = [ai.size(0), 1, 1]
 
-        cut_pcts = torch.empty(
-            op_shape, device=ai.device
-        ).uniform_(self.min_cut_pct, self.max_cut_pct)
+        cut_pcts = torch.empty(op_shape, device=ai.device).uniform_(
+            self.min_cut_pct, self.max_cut_pct
+        )
         masks = (
             random_mask(ai.shape, cut_pcts, device=ai.device)
             # Only mask some items.

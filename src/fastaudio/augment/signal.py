@@ -7,6 +7,8 @@ from fastcore.transform import Transform
 
 from ..core.signal import AudioTensor
 from ..core.spectrogram import AudioSpectrogram
+from ..util import auto_batch
+from .functional import NoiseColor, add_noise_, random_mask, region_mask
 
 
 class AudioPadType(Enum):
@@ -118,14 +120,6 @@ class SignalShifter(RandTransform):
         return shift_signal(sg, int(s), self.roll)
 
 
-class NoiseColor:
-    Violet = -2
-    Blue = -1
-    White = 0
-    Pink = 1
-    Brown = 2
-
-
 class AddNoise(Transform):
     "Adds noise of specified color and level to the audio signal"
 
@@ -148,6 +142,39 @@ class AddNoise(Transform):
         return ai
 
 
+class AddNoiseGPU(Transform):
+    """Adds colored noise to the input audio.
+
+    Works on both `AudioTensor` and `AudioSpectrogram` objects.
+
+    """
+
+    def __init__(self, p=1.0, min_level=0.0, max_level=0.05, color=NoiseColor.White):
+        self.min_level = min_level
+        self.max_level = max_level
+        if not NoiseColor.valid(color):
+            raise ValueError(f"color {color} is not valid")
+        self.color = color
+        self.p = p
+        super().__init__()
+
+    def before_call(self, b, split_idx):
+        self.do = True
+
+    def _encodes(self, tensor):
+        return add_noise_(
+            tensor.data, self.color, self.min_level, self.max_level, self.p
+        )
+
+    @auto_batch(2)
+    def encodes(self, ai: AudioTensor):
+        return self._encodes(ai)
+
+    @auto_batch(3)
+    def encodes(self, sg: AudioSpectrogram):
+        return self._encodes(sg)
+
+
 class ChangeVolume(RandTransform):
     "Changes the volume of the signal"
 
@@ -161,6 +188,28 @@ class ChangeVolume(RandTransform):
 
     def encodes(self, ai: AudioTensor):
         return ai.apply_gain(self.gain)
+
+
+class ChangeVolumeGPU(Transform):
+    """Change the volume of the signal."""
+
+    def __init__(self, p=0.5, lower=0.5, upper=1.5):
+        self.lower, self.upper = lower, upper
+        self.p = p
+        super().__init__()
+
+    @auto_batch(2)
+    def encodes(self, ai: AudioTensor):
+        op_shape = [ai.size(0), 1, 1]
+        scales = torch.where(
+            random_mask(op_shape, self.p, device=ai.device),
+            # Volume scaling
+            torch.empty(op_shape, device=ai.device).uniform_(self.lower, self.upper),
+            # No scaling
+            torch.ones(op_shape, device=ai.device),
+        )
+        ai *= scales
+        return ai
 
 
 class SignalCutout(RandTransform):
@@ -178,6 +227,32 @@ class SignalCutout(RandTransform):
         return ai.cutout(self.cut_pct)
 
 
+class SignalCutoutGPU(Transform):
+    """Zeros a continuous section of the signal."""
+
+    def __init__(self, p=0.5, min_cut_pct=0.0, max_cut_pct=0.15):
+        self.max_cut_pct = max_cut_pct
+        self.min_cut_pct = min_cut_pct
+        self.p = p
+        super().__init__()
+
+    @auto_batch(2)
+    def encodes(self, ai: AudioTensor):
+        n, c, s = ai.shape
+
+        mask = (
+            region_mask(
+                n, (s * self.min_cut_pct), (s * self.max_cut_pct), s, device=ai.device
+            )
+            # Only mask some items in the batch
+            * random_mask([n, 1], self.p, device=ai.device)
+        )
+        # Only apply mask to a random subset of items
+        ai.masked_fill_(mask.view(n, 1, s), 0.0)
+
+        return ai
+
+
 class SignalLoss(RandTransform):
     "Randomly loses some portion of the signal"
 
@@ -191,6 +266,37 @@ class SignalLoss(RandTransform):
 
     def encodes(self, ai: AudioTensor):
         return ai.lose_signal(self.loss_pct)
+
+
+class SignalLossGPU(Transform):
+    """Randomly loses some percentage of samples (non-continuous).
+
+    The same points will be lost across channels, but different points will be
+    lost per-item.
+
+    """
+
+    def __init__(self, p=0.5, min_cut_pct=0.0, max_cut_pct=0.15):
+        self.max_cut_pct = max_cut_pct
+        self.min_cut_pct = min_cut_pct
+        self.p = p
+        super().__init__()
+
+    @auto_batch(2)
+    def encodes(self, ai: AudioTensor):
+        op_shape = [ai.size(0), 1, 1]
+
+        cut_pcts = torch.empty(op_shape, device=ai.device).uniform_(
+            self.min_cut_pct, self.max_cut_pct
+        )
+        masks = (
+            random_mask(ai.shape, cut_pcts, device=ai.device)
+            # Only mask some items.
+            * random_mask(op_shape, self.p, device=ai.device)
+        )
+        ai.masked_fill_(masks, 0)
+
+        return ai
 
 
 # downmixMono was removed from torchaudio, we now just take the mean across channels

@@ -1,26 +1,25 @@
-import random
-
 import pytest
 
+import random
 import torch
 from fastai.data.all import test_close as _test_close
 from fastai.data.all import test_eq as _test_eq
 from fastai.data.all import test_ne as _test_ne
 
 from fastaudio.all import (
-    AddNoise,
+    AddNoiseGPU,
     AudioPadType,
     AudioTensor,
-    ChangeVolume,
+    ChangeVolumeGPU,
     DownmixMono,
     NoiseColor,
     RemoveSilence,
     RemoveType,
     Resample,
     ResizeSignal,
-    SignalCutout,
-    SignalLoss,
-    SignalShifter
+    SignalCutoutGPU,
+    SignalLossGPU,
+    SignalShifter,
 )
 from fastaudio.augment.signal import _shift
 from fastaudio.util import apply_transform, test_audio_tensor
@@ -208,34 +207,46 @@ def test_down_mix_mono(audio):
 
 def test_noise_fail_bad_color(audio):
     with pytest.raises(ValueError):
-        AddNoise(audio, color=5)
+        AddNoiseGPU(audio, color=5)
+
+    with pytest.raises(ValueError):
+        AddNoiseGPU(audio, color=-3)
 
 
 def test_noise_white(audio):
-    addnoise = AddNoise(color=NoiseColor.White)
+    addnoise = AddNoiseGPU(color=NoiseColor.White, p=1.0, min_level=0.1, max_level=0.2)
     inp, out = apply_transform(addnoise, audio)
     _test_ne(inp.data, out.data)
 
 
 def test_noise_non_white(audio):
-    addnoise = AddNoise(color=NoiseColor.Pink)
+    # White noise uses a different method to other noises, so test both.
+    addnoise = AddNoiseGPU(color=NoiseColor.Pink, p=1.0, min_level=0.1, max_level=0.2)
     inp, out = apply_transform(addnoise, audio)
     _test_ne(inp.data, out.data)
 
 
 def test_change_volume(audio):
-    changevol = ChangeVolume(1)
+    changevol = ChangeVolumeGPU(1)
     inp, out = apply_transform(changevol, audio)
     _test_ne(inp.data, out.data)
 
 
 def test_signal_loss(audio):
-    signalloss = SignalLoss(1)
+    signalloss = SignalLossGPU(1)
     inp, out = apply_transform(signalloss, audio)
     _test_ne(inp.data, out.data)
 
 
-def test_signal_cutout(audio):
-    cutout = SignalCutout(1)
+def test_signal_cutout():
+    c, s = 2, 16000
+    min_cut_pct, max_cut_pct = 0.10, 0.15
+    # Create tensor with no zeros
+    audio = AudioTensor(torch.rand([c, s]), sr=16000) * 0.9 + 0.1
+    cutout = SignalCutoutGPU(p=1.0, min_cut_pct=min_cut_pct, max_cut_pct=max_cut_pct)
     inp, out = apply_transform(cutout, audio)
+
     _test_ne(inp.data, out.data)
+
+    num_zeros = (out == 0).sum()
+    assert min_cut_pct * s * c <= num_zeros <= max_cut_pct * s * c, num_zeros

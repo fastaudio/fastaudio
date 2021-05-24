@@ -105,7 +105,7 @@ def test_mask_freq():
 
     # Test patching with mean
     with patch(
-        "fastaudio.functional.region_mask",
+        "fastaudio.augment.functional.region_mask",
         side_effect=[
             torch.BoolTensor([[1] * 10 + [0] * (f - 10)]),
         ],
@@ -121,7 +121,7 @@ def test_mask_freq():
 
     # Test multiple masks (and patching with value)
     with patch(
-        "fastaudio.functional.region_mask",
+        "fastaudio.augment.functional.region_mask",
         side_effect=[
             torch.BoolTensor([[1] * 10 + [0] * (f - 10), [0] * (f - 10) + [1] * 10]),
         ],
@@ -157,7 +157,7 @@ def test_mask_time():
 
     # Test patching with mean
     with patch(
-        "fastaudio.functional.region_mask",
+        "fastaudio.augment.functional.region_mask",
         side_effect=[
             torch.BoolTensor([[1] * 10 + [0] * (t - 10)]),
         ],
@@ -176,7 +176,7 @@ def test_mask_time():
 
     # Test multiple masks (and patching with value)
     with patch(
-        "fastaudio.functional.region_mask",
+        "fastaudio.augment.functional.region_mask",
         side_effect=[
             torch.BoolTensor([[1] * 10 + [0] * (t - 10), [0] * (t - 10) + [1] * 10]),
         ],

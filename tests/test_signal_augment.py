@@ -7,6 +7,7 @@ from fastai.data.all import test_eq as _test_eq
 from fastai.data.all import test_ne as _test_ne
 
 from fastaudio.all import (
+    AddNoise,
     AddNoiseGPU,
     AudioPadType,
     AudioTensor,
@@ -250,3 +251,12 @@ def test_signal_cutout():
 
     num_zeros = (out == 0).sum()
     assert min_cut_pct * s * c <= num_zeros <= max_cut_pct * s * c, num_zeros
+
+
+def test_item_noise_not_applied_in_valid(audio):
+    add_noise = AddNoise(p=1.0)
+    test_aud = AudioTensor(torch.ones_like(audio), 16000)
+    train_out = add_noise(test_aud.clone(), split_idx=0)
+    val_out = add_noise(test_aud.clone(), split_idx=1)
+    _test_ne(test_aud, train_out)
+    _test_eq(test_aud, val_out)

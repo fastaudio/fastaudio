@@ -3,13 +3,13 @@ exclude: '^docs/conf.py'
 repos:
     # Format Code
     - repo: https://github.com/ambv/black
-      rev: stable
+      rev: 21.5b2
       hooks:
         - id: black
 
     # Sort imports
     - repo: https://github.com/PyCQA/isort
-      rev: 5.5.4
+      rev: 5.8.0
       hooks:
       - id: isort
         args: ["--profile", "black"]

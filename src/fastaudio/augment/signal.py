@@ -123,7 +123,7 @@ class SignalShifter(RandTransform):
 class AddNoise(RandTransform):
     "Adds noise of specified color and level to the audio signal"
 
-    def __init__(self, p=0.5, noise_level=0.05, color=NoiseColor.White):
+    def __init__(self, noise_level=0.05, color=NoiseColor.White, p=0.5):
         self.noise_level = noise_level
         self.color = color
         if color not in [*range(-2, 3)]:

@@ -44,7 +44,7 @@ class ResizeSignal(Transform):
         elif orig_samples < crop_samples:
             ai.data = _tfm_pad_signal(sig, crop_samples, pad_mode=self.pad_mode)
         else:
-            crop_start = random.randint(0, int(orig_samples - crop_samples))
+            crop_start = torch.randint(0, int(orig_samples - crop_samples),(1,)).item()
             ai.data = sig[:, crop_start : crop_start + crop_samples]
         return ai
 

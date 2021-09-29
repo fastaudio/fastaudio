@@ -4,7 +4,7 @@
 
 
 # Fastaudio
-> An audio module for fastai v2. We want to help you build audio machine learning applications while minimizing the need for audio domain expertise. Currently under development.
+> An audio module for fastai v2. We want to help you build audio machine learning applications while minimizing the need for audio domain expertise.
 
 # Quick Start
 

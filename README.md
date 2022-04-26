@@ -62,6 +62,10 @@ Create issues, write documentation, suggest/add features, submit PRs. We are ope
 This project has been set up using PyScaffold 3.2.3. For details and usage
 information on PyScaffold see https://pyscaffold.org/.
 
+## Community 
+
+Please come and ask us questions about audio related tasks in our [discord](https://discord.gg/gfNYcfX6pM)
+
 ## Citation
 
 If you used this library in any research, please cite us.

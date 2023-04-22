@@ -1,3 +1,4 @@
+import copy
 import torchaudio
 import warnings
 from dataclasses import asdict, is_dataclass
@@ -75,6 +76,12 @@ class AudioSpectrogram(TensorImageBase):
     def show(self, ctx=None, ax=None, title="", **kwargs):
         "Show spectrogram using librosa"
         return show_spectrogram(self, ctx=ctx, ax=ax, title=title, **kwargs)
+
+    def clone(self, *, memory_format=None):
+        c = super().clone(memory_format=memory_format)
+        if hasattr(self, "settings"):
+            setattr(c, "_settings", copy.deepcopy(getattr(self, "settings")))
+        return c
 
 
 def show_spectrogram(sg, title="", ax=None, ctx=None, **kwargs):

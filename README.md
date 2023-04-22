@@ -35,7 +35,7 @@ conda activate fastaudio
 # Editable install
 git clone https://github.com/fastaudio/fastaudio.git
 cd fastaudio
-pip install -e .[dev,testing]
+pip install -e '.[dev,testing]'
 pre-commit install
 ```
 
@@ -62,7 +62,7 @@ Create issues, write documentation, suggest/add features, submit PRs. We are ope
 This project has been set up using PyScaffold 3.2.3. For details and usage
 information on PyScaffold see https://pyscaffold.org/.
 
-## Community 
+## Community
 
 Please come and ask us questions about audio related tasks in our [discord](https://discord.gg/gfNYcfX6pM)
 

@@ -177,7 +177,7 @@ def colored_noise(shape, exponent, fmin=0, device=None):
     # Use `is` to allow for tensor exponents
     if exponent is NoiseColor.White:
         # White noise is simple - use a faster method.
-        return torch.randn(shape)
+        return torch.randn(shape, device=device)
 
     # The number of samples in each time series
     nsamples = shape[-1]

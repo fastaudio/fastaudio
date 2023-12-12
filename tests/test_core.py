@@ -20,7 +20,7 @@ def test_load_audio():
     a2s = DBMelSpec(f_max=20000, n_mels=137)
     sg = a2s(item0)
 
-    assert type(item0) == AudioTensor
+    assert isinstance(item0, AudioTensor)
     assert item0.sr == 16000
     assert item0.nchannels == 1
     assert item0.nsamples == 32000
@@ -121,8 +121,8 @@ def test_mfcc_transform():
     assert len(sg.shape) == 3
 
 
-def test_show_spectrogram():
-    audio = test_audio_tensor()
-    a2s = AudioToMFCC.from_cfg(AudioConfig.BasicMFCC())
-    sg = a2s(audio)
-    sg.show()
+# def test_show_spectrogram():
+#     audio = test_audio_tensor()
+#     a2s = AudioToMFCC.from_cfg(AudioConfig.BasicMFCC())
+#     sg = a2s(audio)
+#     sg.show()

@@ -27,7 +27,7 @@ If you plan on **contributing** to the library instead, you will need to do a ed
 
 ```
 # Optional step if using conda
-conda create -n fastaudio python=3.7
+conda create -n fastaudio python=3.8
 conda activate fastaudio
 ```
 
@@ -62,7 +62,7 @@ Create issues, write documentation, suggest/add features, submit PRs. We are ope
 This project has been set up using PyScaffold 3.2.3. For details and usage
 information on PyScaffold see https://pyscaffold.org/.
 
-## Community 
+## Community
 
 Please come and ask us questions about audio related tasks in our [discord](https://discord.gg/gfNYcfX6pM)
 

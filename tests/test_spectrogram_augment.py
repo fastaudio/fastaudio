@@ -2,6 +2,7 @@ import pytest
 
 import random
 import torch
+from copy import deepcopy
 from fastai.data.all import test_close as _test_close
 from fastai.data.all import test_eq as _test_eq
 from fastai.data.all import test_fail as _test_fail
@@ -66,7 +67,7 @@ def test_crop_time_after_padding():
     a2s = AudioToSpec.from_cfg(AudioConfig.Voice())
     sg = a2s(sg_orig)
     crop_time = CropTime((sg.duration + 5) * 1000, pad_mode=AudioPadType.Zeros_After)
-    inp, out = apply_transform(crop_time, sg.clone())
+    inp, out = apply_transform(crop_time, deepcopy(sg))
     _test_ne(sg.duration, sg_orig.duration)
 
 
@@ -209,7 +210,7 @@ def test_resize_int():
 
 
 def test_delta_channels():
-    " nchannels for a spectrogram is how many channels its original audio had "
+    "nchannels for a spectrogram is how many channels its original audio had"
     delta = DeltaGPU()
     # Explicitly check more than one channel
     audio = test_audio_tensor(channels=2)

@@ -1,8 +1,8 @@
-import random
-
 import pytest
 
+import random
 import torch
+from copy import deepcopy
 from fastai.data.all import test_close as _test_close
 from fastai.data.all import test_eq as _test_eq
 
@@ -12,7 +12,7 @@ from fastaudio.all import (
     RemoveSilence,
     RemoveType,
     Resample,
-    ResizeSignal
+    ResizeSignal,
 )
 from fastaudio.util import test_audio_tensor
 
@@ -34,7 +34,7 @@ def test_path(audio):
 
 def apply_transform(transform, inp):
     """Generate a new input, apply transform, and display/return both input and output"""
-    inp_orig = inp.clone()
+    inp_orig = deepcopy(inp)
     out = (
         transform(inp, split_idx=0)
         if isinstance(transform, RandTransform)
@@ -102,11 +102,11 @@ def test_cropping():
     audio = test_audio_tensor(seconds=10, sr=1000)
 
     for i in [1, 2, 5]:
-        inp, out = apply_transform(ResizeSignal(i * 1000), audio.clone())
+        inp, out = apply_transform(ResizeSignal(i * 1000), deepcopy(audio))
 
         _test_eq(out.duration, i)
         _test_eq(out.nsamples, out.duration * inp.sr)
 
         # Multi Channel Cropping
-        inp, mc = apply_transform(ResizeSignal(i * 1000), audio.clone())
+        inp, mc = apply_transform(ResizeSignal(i * 1000), deepcopy(audio))
         _test_eq(mc.duration, i)

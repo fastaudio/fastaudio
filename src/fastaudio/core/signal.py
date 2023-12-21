@@ -1,18 +1,16 @@
 import random
 import torch
 import torchaudio
-from collections import OrderedDict
 from fastai.data.external import URLs
 from fastai.data.transforms import Transform, get_files
 from fastai.imports import Path, mimetypes, plt, tarfile
-from fastai.torch_core import TensorBase, _fa_rebuild_qtensor, _fa_rebuild_tensor
+from fastai.torch_core import TensorBase
 from fastai.vision.data import get_grid
-from fastcore.basics import patch
 from fastcore.dispatch import typedispatch
 from fastcore.meta import delegates
 from fastcore.utils import ifnone
 from IPython.display import Audio, display
-from librosa.display import waveplot
+from librosa.display import waveshow
 from os import path
 
 audio_extensions = tuple(
@@ -48,32 +46,6 @@ def tar_extract_at_filename(fname, dest):
     "Extract `fname` to `dest`/`fname.name` folder using `tarfile`"
     dest = Path(dest) / Path(fname).with_suffix("").name
     tarfile.open(fname, "r:gz").extractall(dest)
-
-
-# fix to preserve metadata for subclass tensor in serialization
-# src: https://github.com/fastai/fastai/pull/3383
-# TODO: remove this when #3383 lands and a new fastai version is created
-def _rebuild_from_type(func, type, args, dict):
-    ret = func(*args).as_subclass(type)
-    ret.__dict__ = dict
-    return ret
-
-
-@patch
-def __reduce_ex__(self: TensorBase, proto):
-    torch.utils.hooks.warn_if_has_hooks(self)
-    args = (
-        type(self),
-        self.storage(),
-        self.storage_offset(),
-        tuple(self.size()),
-        self.stride(),
-    )
-    if self.is_quantized:
-        args = args + (self.q_scale(), self.q_zero_point())
-    args = args + (self.requires_grad, OrderedDict())
-    f = _fa_rebuild_qtensor if self.is_quantized else _fa_rebuild_tensor
-    return (_rebuild_from_type, (f, type(self), args, self.__dict__))
 
 
 class AudioTensor(TensorBase):
@@ -152,7 +124,7 @@ def show_audio_signal(ai, ctx, ax=None, title="", **kwargs):
     for i, channel in enumerate(ai):
         # x_start, y_start, x_lenght, y_lenght, all in percent
         ia = ax.inset_axes((i / ai.nchannels, 0.2, 1 / ai.nchannels, 0.7))
-        waveplot(channel.cpu().numpy(), ai.sr, ax=ia, **kwargs)
+        waveshow(channel.cpu().numpy(), sr=ai.sr, ax=ia, **kwargs)
         ia.set_title(f"Channel {i}")
     ax.set_title(title)
 

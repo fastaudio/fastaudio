@@ -1,4 +1,5 @@
 import torch
+from copy import deepcopy
 from fastai.vision.augment import RandTransform
 from functools import wraps
 from math import pi
@@ -27,13 +28,13 @@ def test_audio_tensor(seconds=2, sr=16000, channels=1):
 
 def apply_transform(transform, inp):
     """Generate a new input, apply transform, and display/return both input and output"""
-    inp_orig = inp.clone()
+    inp_orig = deepcopy(inp)
     out = (
         transform(inp_orig, split_idx=0)
         if isinstance(transform, RandTransform)
         else transform(inp_orig)
     )
-    return inp.clone(), out
+    return inp, out
 
 
 def auto_batch(item_dims):

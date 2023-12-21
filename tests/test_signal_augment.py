@@ -2,6 +2,7 @@ import pytest
 
 import random
 import torch
+from copy import deepcopy
 from fastai.data.all import test_close as _test_close
 from fastai.data.all import test_eq as _test_eq
 from fastai.data.all import test_ne as _test_ne
@@ -256,7 +257,7 @@ def test_signal_cutout():
 def test_item_noise_not_applied_in_valid(audio):
     add_noise = AddNoise(p=1.0)
     test_aud = AudioTensor(torch.ones_like(audio), 16000)
-    train_out = add_noise(test_aud.clone(), split_idx=0)
-    val_out = add_noise(test_aud.clone(), split_idx=1)
+    train_out = add_noise(deepcopy(test_aud), split_idx=0)
+    val_out = add_noise(deepcopy(test_aud), split_idx=1)
     _test_ne(test_aud, train_out)
     _test_eq(test_aud, val_out)

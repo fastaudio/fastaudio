@@ -2,6 +2,7 @@ import torch
 
 # Must be imported explicitly to override the top-level `torch.fft` function
 import torch.fft
+from copy import deepcopy
 from torch import Tensor
 
 
@@ -197,9 +198,9 @@ def colored_noise(shape, exponent, fmin=0, device=None):
     s_scale = s_scale ** (-exponent / 2.0)
 
     # Calculate theoretical output standard deviation from scaling
-    w = s_scale[1:].clone()
+    w = deepcopy(s_scale[1:])
     w[-1] *= (1 + (nsamples % 2)) / 2.0  # correct f = +-0.5
-    sigma = 2 * (w ** 2).sum().sqrt() / nsamples
+    sigma = 2 * (w**2).sum().sqrt() / nsamples
 
     # Adjust size to generate one Fourier component per frequency
     new_shape = (*shape[:-1], f.size(0))
